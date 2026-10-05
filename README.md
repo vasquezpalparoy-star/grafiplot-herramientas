@@ -1,6 +1,6 @@
 # Grafiplot · Herramientas
 
-Página de herramientas para clientes de Grafiplot. La primera herramienta permite completar el Formulario Único de Trámite Virtual (FUT) de UNHEVAL y descargarlo en PDF.
+Página de herramientas para clientes de Grafiplot. Incluye un editor del FUT de UNHEVAL y un creador de pósteres dividido en hojas A4.
 
 ## Funciones
 
@@ -12,6 +12,21 @@ Página de herramientas para clientes de Grafiplot. La primera herramienta permi
 - Diseño adaptable a móviles y computadoras.
 
 Los datos se procesan en el dispositivo del visitante. No se envían a un servidor ni se guardan entre sesiones.
+
+## Crear pósteres
+
+Abre `poster.html` desde el servidor o usa el enlace Crear póster en la página del FUT.
+
+- Carga una imagen JPG, PNG o WEBP, o selecciona una página de un PDF.
+- Elige 2, 4, 8 o 16 hojas A4, o una distribución de hasta 10 por 10.
+- Mantén la proporción, recorta para llenar o estira la imagen.
+- Gira el póster, incluye márgenes de 5 mm y guías de corte.
+- Descarga un PDF con una pieza por página A4.
+- Imprime al 100 %, recorta y arma según la numeración.
+
+Las equivalencias A3, A2, A1 y A0 son referencias sin márgenes. A1 y A0 ensamblados con A4 difieren hasta 1 mm del estándar. La aplicación muestra el área real después de recortar los márgenes. Los PDF conservan el contenido original, incluida la rotación de página. Las imágenes grandes se limitan a 4096 píxeles en su lado mayor y 8 megapíxeles para facilitar el uso en móviles.
+
+PDF.js 4.10.38 se distribuye bajo licencia Apache 2.0 (`PDFJS-LICENSE.txt`).
 
 ## Publicar con GitHub Pages
 
