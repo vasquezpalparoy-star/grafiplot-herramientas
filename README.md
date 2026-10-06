@@ -30,6 +30,10 @@ Las equivalencias A3, A2, A1 y A0 son referencias sin márgenes. A1 y A0 ensambl
 
 PDF.js 4.10.38 se distribuye bajo licencia Apache 2.0 (`PDFJS-LICENSE.txt`).
 
+## Ordenar PDF
+
+Abre `order.html`. Carga un PDF de hasta 50 MB y 200 páginas; mueve las miniaturas con el mouse o con el botón Arrastrar en pantallas táctiles. También puedes escribir posiciones únicas del 1 al total y pulsar Ordenar por números. Las posiciones sirven para ordenar, no se imprimen. Incluye controles de movimiento con teclado y restauración del orden original. Las miniaturas se generan cuando se acercan a la pantalla. La descarga copia las páginas originales conservando su contenido, tamaño y rotación. El archivo se procesa localmente.
+
 ## Publicar con GitHub Pages
 
 En **Settings → Pages**, selecciona **Deploy from a branch**, rama **main** y carpeta **/(root)**.
