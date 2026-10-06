@@ -32,7 +32,7 @@ PDF.js 4.10.38 se distribuye bajo licencia Apache 2.0 (`PDFJS-LICENSE.txt`).
 
 ## Ordenar PDF
 
-Abre `order.html`. Carga un PDF de hasta 50 MB y 200 páginas; mueve las miniaturas con el mouse o con el botón Arrastrar en pantallas táctiles. También puedes escribir posiciones únicas del 1 al total y pulsar Ordenar por números. Las posiciones sirven para ordenar, no se imprimen. Incluye controles de movimiento con teclado y restauración del orden original. Las miniaturas se generan cuando se acercan a la pantalla. La descarga copia las páginas originales conservando su contenido, tamaño y rotación. El archivo se procesa localmente.
+Abre `order.html`. Carga un PDF de hasta 50 MB y 200 páginas; mueve las miniaturas con el mouse o con el botón Arrastrar en pantallas táctiles. Al confirmar una posición con Enter o salir del campo, esa página intercambia su lugar con la que ocupaba dicha posición. También puedes pulsar Aplicar números. Las posiciones sirven para ordenar, no se imprimen. Incluye controles de movimiento con teclado y restauración del orden original. Las miniaturas se generan cuando se acercan a la pantalla. La vista previa permite recorrer el PDF final, elegir una página y descargar esa misma versión. La descarga copia las páginas originales conservando su contenido, tamaño y rotación. El archivo se procesa localmente.
 
 ## Publicar con GitHub Pages
 
