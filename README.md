@@ -36,7 +36,7 @@ Abre `order.html`. Carga un PDF de hasta 50 MB y 200 páginas; mueve las miniatu
 
 ## Imagen para pintar
 
-Abre `coloring.html`. Convierte imágenes JPG, PNG o WEBP de hasta 25 MB a contornos negros sobre blanco. Incluye estilos simple/equilibrado/detallado y ajustes de detalle, suavizado, grosor y limpieza de puntos. El análisis usa bordes de color con suavizado, supresión de contornos y filtrado de componentes pequeños, ejecutado en un Web Worker. No usa un servicio de IA ni sube las imágenes. Se limita el procesamiento a 1560 píxeles en el lado mayor y 2 megapíxeles para facilitar el uso móvil. Las ilustraciones con contornos claros suelen dar mejores resultados que fotos con fondos complejos. Descarga PNG o PDF A4 con proporción conservada y margen de 10 mm.
+Abre `coloring.html`. Convierte imágenes JPG, PNG o WEBP de hasta 25 MB a contornos negros sobre blanco. Incluye estilos de contornos simples, equilibrado, detalles finos y fotografía, con botones de colores y descripciones. Añade realce de bordes de poco contraste, conservación de detalles finos, unión de pequeños cortes y restauración de ajustes; mantiene los controles de detalle, suavizado, grosor y limpieza de puntos. Cada función explica sus efectos y límites. El análisis usa bordes de color con suavizado, supresión de contornos y filtrado de componentes pequeños, ejecutado en un Web Worker. No usa un servicio de IA ni sube las imágenes. Se limita el procesamiento a 1560 píxeles en el lado mayor y 2 megapíxeles para facilitar el uso móvil. Las ilustraciones con contornos claros suelen dar mejores resultados que fotos con fondos complejos. Descarga PNG o PDF A4 con proporción conservada y margen de 10 mm.
 
 ## Publicar con GitHub Pages
 
