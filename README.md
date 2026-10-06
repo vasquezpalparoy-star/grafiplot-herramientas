@@ -19,7 +19,7 @@ Abre `poster.html` desde el servidor o usa el enlace Crear póster en la página
 
 - Carga una imagen JPG, PNG o WEBP, o selecciona una página de un PDF.
 - Elige 2, 4, 8 o 16 hojas A4, o una distribución de hasta 10 por 10.
-- Pasa el cursor o toca las tarjetas de colores para ver hojas, distribución y medidas en centímetros.
+- Pasa el cursor o toca las tarjetas de colores para ver hojas, distribución y medidas en centímetros en una ventana flotante. Se puede cerrar con la X, Escape o tocando fuera.
 - Carga imágenes por un enlace directo cuando el sitio de origen permita la descarga desde el navegador.
 - Mantén la proporción, recorta para llenar o estira la imagen.
 - Gira el póster, incluye márgenes de 5 mm y guías de corte.
