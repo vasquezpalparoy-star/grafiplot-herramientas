@@ -66,3 +66,8 @@ Abre `http://localhost:8000`. No requiere instalación de paquetes.
 Universidad Nacional Hermilio Valdizán: https://webs.unheval.edu.pe/public/filemanager/files/DOCUMENTOS-GENERALES/FUT.pdf
 
 Grafiplot no es una página oficial de UNHEVAL. Revisa los datos y requisitos de tu trámite antes de presentar el formulario.
+
+
+## Inicio unificado y aplicación principal
+
+La portada reúne las cinco herramientas. El FUT continúa disponible en `fut.html`; Carátulas es la quinta herramienta y se encuentra en `caratulas/web/`. La página comercial de Grafiplot tiene su propio acceso desde el inicio. El proyecto del APK con todas las herramientas se encuentra en `android-principal/`.

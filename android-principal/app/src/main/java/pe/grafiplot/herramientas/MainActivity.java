@@ -1,0 +1,63 @@
+package pe.grafiplot.herramientas;
+import android.app.*;
+import android.os.Bundle;
+import android.content.*;
+import android.net.Uri;
+import android.graphics.Color;
+import android.view.*;
+import android.webkit.*;
+import android.widget.*;
+import java.io.*;
+import java.util.*;
+public class MainActivity extends Activity {
+ private static final String ORIGIN="https://appassets.androidplatform.net";
+ private static final String HOME=ORIGIN+"/index.html";
+ private static final String SITE="https://www.grafiplotvasquez.com/#hero";
+ private WebView tools,site;
+ private FrameLayout content;
+ private Button back,openBrowser;
+ private ValueCallback<Uri[]> chooser;
+ private byte[] pendingBytes;
+ private String pendingPrintMessage;
+ private boolean showingSite=false;
+ @Override public void onCreate(Bundle saved){super.onCreate(saved);getWindow().setStatusBarColor(Color.rgb(211,14,42));getWindow().setNavigationBarColor(Color.WHITE);
+  LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(Color.WHITE);root.setOnApplyWindowInsetsListener((v,insets)->{v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets;});setContentView(root);root.requestApplyInsets();
+  LinearLayout bar=new LinearLayout(this);bar.setPadding(dp(6),0,dp(6),0);bar.setGravity(Gravity.CENTER_VERTICAL);bar.setBackgroundColor(Color.rgb(220,18,44));
+  back=button("‹ Atrás",v->goBack());bar.addView(back);Button home=button("Herramientas",v->goHome());bar.addView(home,new LinearLayout.LayoutParams(0,dp(48),1));Button website=button("Página web ↗",v->showSite());bar.addView(website);root.addView(bar,new LinearLayout.LayoutParams(-1,dp(48)));
+  openBrowser=new Button(this);openBrowser.setText("Abrir la página de Grafiplot en el navegador ↗");openBrowser.setTextSize(12);openBrowser.setVisibility(View.GONE);openBrowser.setOnClickListener(v->external(SITE));root.addView(openBrowser,new LinearLayout.LayoutParams(-1,dp(42)));
+  content=new FrameLayout(this);root.addView(content,new LinearLayout.LayoutParams(-1,0,1));tools=new WebView(this);configure(tools,true);content.addView(tools,new FrameLayout.LayoutParams(-1,-1));tools.addJavascriptInterface(new Downloads(),"AndroidPrint");tools.setWebViewClient(new WebViewClient(){
+   @Override public WebResourceResponse shouldInterceptRequest(WebView v,WebResourceRequest request){return localResource(request.getUrl());}
+   @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){String u=r.getUrl().toString();if(u.startsWith(ORIGIN+"/")){if(r.getUrl().getPath().endsWith(".pdf")){saveAsset(r.getUrl().getPath());return true;}return false;}if(isSite(r.getUrl()))showSite();else external(u);return true;}
+   @Override public void onPageFinished(WebView v,String url){if(url.startsWith(ORIGIN+"/"))v.evaluateJavascript(DOWNLOAD_SCRIPT,null);}
+  });tools.setDownloadListener((url,userAgent,disposition,mime,length)->{if(url.startsWith(ORIGIN+"/"))saveAsset(Uri.parse(url).getPath());else if(url.startsWith("https://"))external(url);});tools.loadUrl(HOME);
+ }
+ private int dp(int n){return Math.round(n*getResources().getDisplayMetrics().density);}
+ private Button button(String text,View.OnClickListener cb){Button b=new Button(this);b.setText(text);b.setTextSize(12);b.setTextColor(Color.WHITE);b.setBackgroundColor(Color.TRANSPARENT);b.setAllCaps(false);b.setPadding(dp(10),0,dp(10),0);b.setOnClickListener(cb);return b;}
+ private boolean isSite(Uri uri){String h=uri.getHost();return "https".equals(uri.getScheme())&&("www.grafiplotvasquez.com".equals(h)||"grafiplotvasquez.com".equals(h));}
+ private void configure(WebView web,boolean local){WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setAllowFileAccess(false);s.setAllowContentAccess(true);s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);s.setSupportMultipleWindows(true);web.setWebChromeClient(new WebChromeClient(){
+  @Override public boolean onJsAlert(WebView v,String u,String msg,JsResult result){new AlertDialog.Builder(MainActivity.this).setMessage(msg).setPositiveButton("Aceptar",(d,w)->result.confirm()).setOnCancelListener(d->result.cancel()).show();return true;}
+  @Override public boolean onJsConfirm(WebView v,String u,String msg,JsResult result){new AlertDialog.Builder(MainActivity.this).setMessage(msg).setPositiveButton("Aceptar",(d,w)->result.confirm()).setNegativeButton("Cancelar",(d,w)->result.cancel()).setOnCancelListener(d->result.cancel()).show();return true;}
+  @Override public boolean onShowFileChooser(WebView v,ValueCallback<Uri[]> callback,FileChooserParams params){if(chooser!=null)chooser.onReceiveValue(null);chooser=callback;try{startActivityForResult(params.createIntent(),10);return true;}catch(Exception e){chooser.onReceiveValue(null);chooser=null;toast("No se pudo abrir el selector de archivos");return false;}}
+  @Override public boolean onCreateWindow(WebView v,boolean dialog,boolean gesture,android.os.Message resultMsg){WebView temp=new WebView(MainActivity.this);temp.setWebViewClient(new WebViewClient(){@Override public boolean shouldOverrideUrlLoading(WebView child,WebResourceRequest r){Uri uri=r.getUrl();if(uri.toString().startsWith(ORIGIN+"/")){if(uri.getPath().endsWith(".pdf"))saveAsset(uri.getPath());else{goTools();tools.loadUrl(uri.toString());}}else if(isSite(uri))showSite();else external(uri.toString());child.destroy();return true;}});((WebView.WebViewTransport)resultMsg.obj).setWebView(temp);resultMsg.sendToTarget();return true;}
+ });}
+ private WebResourceResponse localResource(Uri uri){if(!"appassets.androidplatform.net".equals(uri.getHost()))return null;String path=uri.getPath();if(path==null)return missing();if(path.endsWith("/"))path+="index.html";if(path.startsWith("/"))path=path.substring(1);if(path.contains("..")||path.startsWith("android-principal/"))return missing();String mime=path.endsWith(".mjs")||path.endsWith(".js")?"text/javascript":path.endsWith(".html")?"text/html":path.endsWith(".css")?"text/css":path.endsWith(".json")?"application/json":path.endsWith(".pdf")?"application/pdf":path.endsWith(".png")?"image/png":path.endsWith(".jpg")?"image/jpeg":"application/octet-stream";try{Map<String,String> headers=new HashMap<>();headers.put("Cache-Control","no-cache");headers.put("Access-Control-Allow-Origin",ORIGIN);return new WebResourceResponse(mime,"UTF-8",200,"OK",headers,getAssets().open(path));}catch(IOException e){return missing();}}
+ private WebResourceResponse missing(){return new WebResourceResponse("text/plain","UTF-8",404,"Not Found",new HashMap<>(),new ByteArrayInputStream(new byte[0]));}
+ private void showSite(){showingSite=true;if(site==null){site=new WebView(this);configure(site,false);site.setWebViewClient(new WebViewClient(){@Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){if(isSite(r.getUrl()))return false;external(r.getUrl().toString());return true;}@Override public void onReceivedError(WebView v,WebResourceRequest r,WebResourceError e){if(r.isForMainFrame())toast("Revisa tu conexión o abre la página en el navegador");}});content.addView(site,new FrameLayout.LayoutParams(-1,-1));site.loadUrl(SITE);}tools.setVisibility(View.GONE);site.setVisibility(View.VISIBLE);openBrowser.setVisibility(View.VISIBLE);}
+ private void goTools(){showingSite=false;if(site!=null)site.setVisibility(View.GONE);tools.setVisibility(View.VISIBLE);openBrowser.setVisibility(View.GONE);}
+ private void goHome(){goTools();tools.loadUrl(HOME);}
+ private void goBack(){if(showingSite){if(site.canGoBack())site.goBack();else goTools();}else if(tools.canGoBack())tools.goBack();else if(!HOME.equals(tools.getUrl()))goHome();else new AlertDialog.Builder(this).setMessage("¿Salir de Grafiplot Herramientas?").setPositiveButton("Salir",(d,w)->finish()).setNegativeButton("Continuar",null).show();}
+ private void external(String url){try{Uri u=Uri.parse(url);String s=u.getScheme();if("https".equals(s)||"http".equals(s)||"tel".equals(s)||"mailto".equals(s))startActivity(new Intent(Intent.ACTION_VIEW,u));}catch(Exception e){toast("No hay una aplicación disponible para abrir este enlace");}}
+ private void toast(String message){runOnUiThread(()->Toast.makeText(this,message,Toast.LENGTH_LONG).show());}
+ public class Downloads {
+  @JavascriptInterface public void queuePrintChat(String message){pendingPrintMessage=message;}
+  @JavascriptInterface public void savePDF(String b64){saveFile(b64,"application/pdf","Caratula-Grafiplot.pdf");}
+  @JavascriptInterface public void saveFile(String b64,String mime,String filename){try{if(b64.length()>140000000){toast("El archivo es demasiado grande para el teléfono");return;}byte[] bytes=android.util.Base64.decode(b64,android.util.Base64.DEFAULT);runOnUiThread(()->requestSave(bytes,mime,filename));}catch(Exception e){toast("No se pudo preparar el archivo");}}
+  @JavascriptInterface public void print(){runOnUiThread(()->{android.print.PrintManager pm=(android.print.PrintManager)getSystemService(PRINT_SERVICE);pm.print("Grafiplot",tools.createPrintDocumentAdapter("Grafiplot"),new android.print.PrintAttributes.Builder().setMediaSize(android.print.PrintAttributes.MediaSize.ISO_A4).build());});}
+ }
+ private void requestSave(byte[] bytes,String mime,String filename){if(pendingBytes!=null){toast("Termina de guardar el archivo anterior");return;}pendingBytes=bytes;String safe=filename.replaceAll("[\\\\/\\r\\n]","_");if(safe.length()>150)safe=safe.substring(0,150);Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.addCategory(Intent.CATEGORY_OPENABLE);i.setType(mime==null||mime.isEmpty()?"application/octet-stream":mime);i.putExtra(Intent.EXTRA_TITLE,safe);try{startActivityForResult(i,12);}catch(Exception e){pendingBytes=null;toast("No se pudo abrir el selector para guardar");}}
+ private void saveAsset(String path){if(path==null||path.contains(".."))return;try(InputStream in=getAssets().open(path.startsWith("/")?path.substring(1):path);ByteArrayOutputStream out=new ByteArrayOutputStream()){byte[] buf=new byte[16384];int n;while((n=in.read(buf))!=-1)out.write(buf,0,n);requestSave(out.toByteArray(),"application/pdf",Uri.parse(path).getLastPathSegment());}catch(Exception e){toast("No se pudo abrir el PDF");}}
+ @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request==10&&chooser!=null){chooser.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result,data));chooser=null;}if(request==12){if(result==RESULT_OK&&data!=null&&data.getData()!=null&&pendingBytes!=null){try(OutputStream out=getContentResolver().openOutputStream(data.getData())){out.write(pendingBytes);toast("Archivo guardado");if(pendingPrintMessage!=null)external("https://wa.me/51952628844?text="+Uri.encode(pendingPrintMessage));}catch(Exception e){toast("No se pudo guardar el archivo");}}pendingBytes=null;pendingPrintMessage=null;}}
+ @Override public void onBackPressed(){goBack();}
+ @Override protected void onDestroy(){if(chooser!=null)chooser.onReceiveValue(null);if(tools!=null){tools.removeJavascriptInterface("AndroidPrint");tools.destroy();}if(site!=null)site.destroy();super.onDestroy();}
+ private static final String DOWNLOAD_SCRIPT="(function(){if(window.__grafiplotDownloads)return;window.__grafiplotDownloads=true;const save=async(a)=>{try{const blob=await(await fetch(a.href)).blob();const r=new FileReader();r.onload=()=>AndroidPrint.saveFile(r.result.split(',')[1],blob.type||'application/pdf',a.download||'Grafiplot.pdf');r.readAsDataURL(blob)}catch(e){alert('No se pudo preparar la descarga')}};const click=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){if(this.href.startsWith('blob:')&&this.download){save(this);return}return click.call(this)};document.addEventListener('click',e=>{const a=e.target.closest('a');if(a&&a.href.startsWith('blob:')&&a.download){e.preventDefault();save(a)}},true)})();";
+}

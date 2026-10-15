@@ -1,0 +1,19 @@
+plugins { id 'com.android.application' }
+def webRoot = rootProject.projectDir.parentFile
+def bundleWebAssets = tasks.register('bundleWebAssets', Sync) {
+ from(webRoot.listFiles().findAll { it.isFile() && it.name ==~ /.*\.(html|js|mjs|css|pdf|png)/ })
+ from([new File(webRoot, 'PDF-LIB-LICENSE.md'), new File(webRoot, 'PDFJS-LICENSE.txt')])
+ from(new File(webRoot, 'brand')) { into 'brand' }
+ from(new File(webRoot, 'caratulas/web')) { into 'caratulas/web' }
+ into layout.buildDirectory.dir('generated/grafiplotAssets')
+}
+
+android {
+ namespace 'pe.grafiplot.herramientas'
+ compileSdk 35
+ buildToolsVersion '35.0.0'
+ defaultConfig { applicationId 'pe.grafiplot.herramientas'; minSdk 26; targetSdk 35; versionCode 1; versionName '1.0' }
+ sourceSets { main { assets.srcDir(layout.buildDirectory.dir('generated/grafiplotAssets')) } }
+}
+
+tasks.named('preBuild').configure { dependsOn(bundleWebAssets) }
