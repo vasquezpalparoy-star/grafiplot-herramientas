@@ -8,7 +8,7 @@
   "webAppId": "1:658305148915:web:19a8ac271da57f7efad486",
   "sendUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat",
   "feedUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat?action=feed",
-  "announcementsEnabled": false,
+  "announcementsEnabled": true,
   "chatEnabled": true,
   "chatPushEnabled": false,
   "chatDeviceUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat",
