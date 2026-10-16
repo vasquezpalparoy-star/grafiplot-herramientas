@@ -1,6 +1,6 @@
 # Grafiplot Publicidad
 
-Proyecto Firebase exclusivo de publicidad: `grafiplot-publicidad`, propiedad de la cuenta `grafiplotvasquez@gmail.com`, plan Spark. La actualización propuesta conecta también el acceso del chat con este proyecto. Los mensajes se conservan en el servidor Supabase existente. Una vinculación que verifica la sesión anterior y la nueva permite conservar el historial sin reasignar sus mensajes. La activación del cambio está pendiente de aprobación.
+Proyecto Firebase exclusivo de publicidad: `grafiplot-publicidad`, propiedad de la cuenta `grafiplotvasquez@gmail.com`, plan Spark. El acceso del chat y la publicidad utiliza el mismo proyecto Firebase. Los mensajes del chat se guardan en el servidor Supabase existente. Cada cliente inicia una conversación nueva al entrar con su identidad de este proyecto; no se vincula el historial del proyecto anterior.
 
 La configuración pública de publicidad se encuentra en `push-config.json`, campo `advertisingFirebase`. El panel usa una instancia Firebase independiente, `grafiplot-advertising-admin`. El propietario registra su contraseña personalmente y verifica su correo. La contraseña de Google no se reutiliza automáticamente.
 
