@@ -71,3 +71,9 @@ Grafiplot no es una página oficial de UNHEVAL. Revisa los datos y requisitos de
 ## Inicio unificado y aplicación principal
 
 La portada reúne las cinco herramientas. El FUT continúa disponible en `fut.html`; Carátulas es la quinta herramienta y se encuentra en `caratulas/web/`. La página comercial de Grafiplot tiene su propio acceso desde el inicio. El proyecto del APK con todas las herramientas se encuentra en `android-principal/`.
+
+## Impresión directa y avisos
+
+Impresión Rápida es la sexta herramienta. En la APK, los botones «Imprimir directo · HP» de FUT y Carátulas abren el PDF generado en el módulo integrado de la HP HPE802D0. El usuario revisa y confirma antes de enviar a la impresora. En Android, la web también permite compartir el PDF con la aplicación instalada; en una computadora se ofrece la descarga del PDF.
+
+El panel de avisos está en `admin-avisos.html`; las plantillas se pueden revisar sin enviar. Las notificaciones reales permanecen desactivadas hasta configurar Firebase. Lee `notifications/README.md` para activar el servidor y el administrador.

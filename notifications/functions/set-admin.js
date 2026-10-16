@@ -1,0 +1,3 @@
+// Run only on your own machine/server with application-default admin credentials.
+const {initializeApp,applicationDefault}=require('firebase-admin/app');const {getAuth}=require('firebase-admin/auth');
+initializeApp({credential:applicationDefault()});(async()=>{const email=process.argv[2];if(!email)throw Error('Indica el correo de tu cuenta de administrador');const user=await getAuth().getUserByEmail(email);await getAuth().setCustomUserClaims(user.uid,{...(user.customClaims||{}),admin:true});console.log('Rol de administrador asignado. Cierra sesión y vuelve a entrar.');})().catch(e=>{console.error(e.message);process.exitCode=1});

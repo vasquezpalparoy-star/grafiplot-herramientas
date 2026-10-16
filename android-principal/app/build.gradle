@@ -1,7 +1,7 @@
 plugins { id 'com.android.application' }
 def webRoot = rootProject.projectDir.parentFile
 def bundleWebAssets = tasks.register('bundleWebAssets', Sync) {
- from(webRoot.listFiles().findAll { it.isFile() && it.name ==~ /.*\.(html|js|mjs|css|pdf|png)/ })
+ from(webRoot.listFiles().findAll { it.isFile() && it.name ==~ /.*\.(html|js|mjs|css|pdf|png|json)/ })
  from([new File(webRoot, 'PDF-LIB-LICENSE.md'), new File(webRoot, 'PDFJS-LICENSE.txt')])
  from(new File(webRoot, 'brand')) { into 'brand' }
  from(new File(webRoot, 'caratulas/web')) { into 'caratulas/web' }
@@ -12,8 +12,12 @@ android {
  namespace 'pe.grafiplot.herramientas'
  compileSdk 35
  buildToolsVersion '35.0.0'
- defaultConfig { applicationId 'pe.grafiplot.herramientas'; minSdk 26; targetSdk 35; versionCode 1; versionName '1.0' }
+ signingConfigs { release { if (System.getenv('GRAFIPLOT_KEYSTORE')) { storeFile file(System.getenv('GRAFIPLOT_KEYSTORE')); storePassword System.getenv('GRAFIPLOT_STORE_PASSWORD'); keyAlias 'grafiplot'; keyPassword System.getenv('GRAFIPLOT_KEY_PASSWORD'); enableV1Signing true; enableV2Signing true; enableV3Signing true } } }
+ buildTypes { release { signingConfig signingConfigs.release; debuggable false; minifyEnabled false } }
+ defaultConfig { applicationId 'pe.grafiplot.herramientas'; minSdk 26; targetSdk 35; versionCode 2; versionName '1.1' }
  sourceSets { main { assets.srcDir(layout.buildDirectory.dir('generated/grafiplotAssets')) } }
 }
 
 tasks.named('preBuild').configure { dependsOn(bundleWebAssets) }
+
+dependencies { implementation "com.google.firebase:firebase-messaging:25.0.1" }
