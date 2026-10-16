@@ -11,7 +11,7 @@ Página de herramientas para clientes de Grafiplot. Incluye un editor del FUT de
 - Descarga del PDF sobre el formulario original.
 - Diseño adaptable a móviles y computadoras.
 
-Las herramientas PDF procesan los archivos en el dispositivo. El chat privado utiliza Firebase; sus mensajes se guardan en el servidor cuando el servicio se active.
+Las herramientas PDF procesan los archivos en el dispositivo. El chat privado utiliza Supabase para sus mensajes y Firebase Authentication para el acceso.
 
 ## Crear pósteres
 
@@ -76,9 +76,9 @@ La portada reúne las cinco herramientas. El FUT continúa disponible en `fut.ht
 
 Impresión Rápida es la sexta herramienta. En la APK, los botones «Imprimir directo · HP» de FUT y Carátulas abren el PDF generado en el módulo integrado de la HP HPE802D0. El usuario revisa y confirma antes de enviar a la impresora. En Android, la web también permite compartir el PDF con la aplicación instalada; en una computadora se ofrece la descarga del PDF.
 
-El panel de avisos está en `admin-avisos.html`; las plantillas se pueden revisar sin enviar. Firebase está conectado. Los envíos desde el panel y el chat permanecen desactivados hasta autorizar al administrador y desplegar los servicios. Lee `notifications/README.md` para activar el servidor y el administrador.
+El panel de avisos está en `admin-avisos.html`; las plantillas se pueden revisar sin enviar. Firebase y Supabase están conectados sin Blaze. El chat de texto está activado; los avisos en segundo plano esperan la credencial privada FCM en el servidor. Lee `notifications/README.md` para activar el servidor y el administrador.
 
 
 ## Chat privado
 
-`chat.html` prepara conversaciones individuales entre clientes y Grafiplot, con bandeja del administrador. La activación se controla por `chatEnabled` y `chatPushEnabled`, ambos desactivados en esta entrega. Estado y requisitos en `notifications/README.md`.
+`chat.html` prepara conversaciones individuales entre clientes y Grafiplot, con bandeja del administrador. El chat de texto está activado con `chatEnabled:true`. Las notificaciones en segundo plano siguen desactivadas hasta completar la credencial privada del servidor. Estado y requisitos en `supabase/README.md`.

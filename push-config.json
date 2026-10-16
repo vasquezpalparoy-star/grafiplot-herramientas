@@ -6,10 +6,12 @@
   "senderId": "658305148915",
   "authDomain": "grafiplot-herramientas.firebaseapp.com",
   "webAppId": "1:658305148915:web:19a8ac271da57f7efad486",
-  "sendUrl": "",
-  "feedUrl": "",
+  "sendUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat",
+  "feedUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat?action=feed",
   "announcementsEnabled": false,
-  "chatEnabled": false,
+  "chatEnabled": true,
   "chatPushEnabled": false,
-  "chatDeviceUrl": ""
+  "chatDeviceUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat",
+  "backend": "supabase",
+  "chatUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat"
 }

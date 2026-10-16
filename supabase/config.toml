@@ -1,0 +1,3 @@
+[functions.grafiplot-chat]
+# El servidor verifica por sí mismo firma RS256, emisor, audiencia y caducidad del JWT de Firebase.
+verify_jwt = false
