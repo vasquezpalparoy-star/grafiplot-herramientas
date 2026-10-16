@@ -13,5 +13,12 @@
   "chatPushEnabled": false,
   "chatDeviceUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat",
   "backend": "supabase",
-  "chatUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat"
+  "chatUrl": "https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat",
+  "advertisingFirebase": {
+    "apiKey": "AIzaSyBkiGMuE-SaKsPcMeuelIIaYQYq-Bu_X1I",
+    "authDomain": "grafiplot-publicidad.firebaseapp.com",
+    "projectId": "grafiplot-publicidad",
+    "webAppId": "1:900449408753:web:f99bddc91374e149537b50",
+    "messagingSenderId": "900449408753"
+  }
 }
