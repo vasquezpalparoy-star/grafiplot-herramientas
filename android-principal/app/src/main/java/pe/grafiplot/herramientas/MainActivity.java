@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
    @Override public void onPageFinished(WebView v,String url){if(url.startsWith(ORIGIN+"/"))v.evaluateJavascript(DOWNLOAD_SCRIPT,null);}
   });tools.setDownloadListener((url,userAgent,disposition,mime,length)->{if(url.startsWith(ORIGIN+"/"))saveAsset(Uri.parse(url).getPath());else if(url.startsWith("https://"))external(url);});tools.loadUrl(HOME);handleLaunch(getIntent());
  }
- private boolean adminPage(String path){return "/admin-avisos.html".equals(path)||"/administrador.html".equals(path);}
+ private boolean adminPage(String path){return "/admin-avisos.html".equals(path)||"/administrador.html".equals(path)||"/chat-admin.html".equals(path);}
  private int dp(int n){return Math.round(n*getResources().getDisplayMetrics().density);}
  private Button button(String text,View.OnClickListener cb){Button b=new Button(this);b.setText(text);b.setTextSize(12);b.setTextColor(Color.WHITE);b.setBackgroundColor(Color.TRANSPARENT);b.setAllCaps(false);b.setPadding(dp(10),0,dp(10),0);b.setOnClickListener(cb);return b;}
  private boolean isSite(Uri uri){String h=uri.getHost();return "https".equals(uri.getScheme())&&("www.grafiplotvasquez.com".equals(h)||"grafiplotvasquez.com".equals(h));}

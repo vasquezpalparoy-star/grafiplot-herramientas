@@ -1,0 +1,11 @@
+{
+  "name": "grafiplot-chat-transition-tests",
+  "private": true,
+  "scripts": {
+    "test": "cd ../.. && node supabase/tests/identity-link.test.cjs && node supabase/tests/firebase-transition.test.cjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.16",
+    "jose": "6.2.12"
+  }
+}
