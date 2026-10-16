@@ -1,1 +1,1 @@
-{"name":"grafiplot-notifications","version":"1.0.0","private":true,"main":"index.js","engines":{"node":"22"},"scripts":{"test":"node --test validate.test.js"},"dependencies":{"firebase-admin":"13.6.0","firebase-functions":"6.6.0"}}
+{"name":"grafiplot-notifications","version":"1.0.0","private":true,"main":"index.js","engines":{"node":"22"},"scripts":{"test":"node --test validate.test.js chat.test.js"},"dependencies":{"firebase-admin":"13.6.0","firebase-functions":"6.6.0"}}

@@ -1,1 +1,15 @@
-{"enabled":false,"projectId":"","apiKey":"","androidAppId":"","senderId":"","sendUrl":"","feedUrl":""}
+{
+  "enabled": true,
+  "projectId": "grafiplot-herramientas",
+  "apiKey": "AIzaSyBcTRm-FZU-PehSbcjDRmDC3LowVDceIR0",
+  "androidAppId": "1:658305148915:android:a28f162ee2fec669fad486",
+  "senderId": "658305148915",
+  "authDomain": "grafiplot-herramientas.firebaseapp.com",
+  "webAppId": "1:658305148915:web:19a8ac271da57f7efad486",
+  "sendUrl": "",
+  "feedUrl": "",
+  "announcementsEnabled": false,
+  "chatEnabled": false,
+  "chatPushEnabled": false,
+  "chatDeviceUrl": ""
+}

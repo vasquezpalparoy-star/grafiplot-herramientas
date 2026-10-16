@@ -1,2 +1,39 @@
 rules_version = '2';
-service cloud.firestore { match /databases/{database}/documents { match /{document=**} { allow read, write: if false; } } }
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function signedIn(){return request.auth != null;}
+  function admin(){return signedIn() && request.auth.token.get('admin',false) == true;}
+  function owner(id){return signedIn() && request.auth.uid == id;}
+  match /conversations/{clientId} {
+   allow get: if owner(clientId) || admin();
+   allow list: if admin();
+   allow create: if owner(clientId)
+    && request.resource.data.keys().hasOnly(['clientId','clientName','updatedAt'])
+    && request.resource.data.clientId == clientId
+    && request.resource.data.clientName is string
+    && request.resource.data.clientName.size() > 0 && request.resource.data.clientName.size() <= 80
+    && request.resource.data.updatedAt == request.time;
+   allow update: if request.resource.data.clientId == resource.data.clientId
+    && request.resource.data.updatedAt == request.time
+    && ((admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['updatedAt']))
+     || (owner(clientId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clientName','updatedAt'])
+       && request.resource.data.clientName is string && request.resource.data.clientName.size() > 0
+       && request.resource.data.clientName.size() <= 80));
+   allow delete: if false;
+   match /messages/{messageId} {
+    allow read: if owner(clientId) || admin();
+    allow create: if (owner(clientId) || admin())
+     && existsAfter(/databases/$(database)/documents/conversations/$(clientId))
+     && request.resource.data.keys().hasOnly(['text','senderId','role','createdAt'])
+     && request.resource.data.text is string && request.resource.data.text.size() > 0
+     && request.resource.data.text.size() <= 4000
+     && request.resource.data.senderId == request.auth.uid
+     && request.resource.data.createdAt == request.time
+     && ((admin() && request.resource.data.role == 'admin')
+      || (!admin() && owner(clientId) && request.resource.data.role == 'client'));
+    allow update, delete: if false;
+   }
+  }
+  match /{document=**}{allow read, write: if false;}
+ }
+}

@@ -1,0 +1,16 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+function fixture(){
+ const store=new Map(),sent=[],users=new Map([['admin',{customClaims:{admin:true}}],['revoked',{customClaims:{admin:false}}]]);
+ const ref=id=>({id,async set(value){store.set(id,value)},async delete(){store.delete(id)}});
+ const db={
+  collection(){return {doc:ref,where(field,op,value){return {async get(){return {docs:[...store].filter(([,d])=>d[field]===value).map(([id,data])=>({data:()=>data,ref:ref(id)}))}}}}}},
+  async runTransaction(fn){return fn({async get(r){return {exists:store.has(r.id),data:()=>store.get(r.id)}},delete(r){store.delete(r.id)}})}
+ };
+ const auth={async verifyIdToken(token){if(token==='client')return {uid:'client-a'};if(token==='admin')return {uid:'admin',admin:true};throw Error('invalid')},async getUser(uid){return users.get(uid)||{disabled:true}}};
+ const exports={};
+ vm.runInNewContext(fs.readFileSync(__dirname+'/chat.js','utf8'),{exports,require:n=>n==='firebase-functions/v2/https'?{onRequest:(_o,f)=>f}:n==='firebase-functions/v2/firestore'?{onDocumentCreated:(_o,f)=>f}:n==='firebase-admin/auth'?{getAuth:()=>auth}:n==='firebase-admin/firestore'?{getFirestore:()=>db,FieldValue:{serverTimestamp:()=>1}}:n==='firebase-admin/messaging'?{getMessaging:()=>({async sendEach(messages){sent.push(...messages);return {responses:messages.map(()=>({success:true}))}}})}:require(n)});
+ return {store,sent,api:exports}
+}
+function response(){return {code:200,status(code){this.code=code;return this},json(data){this.body=data;return this}}}
+test('Vincular dispositivos exige sesión y no acepta el rol enviado por el cliente',async()=>{const f=fixture();let res=response();await f.api.registerChatDevice({method:'POST',headers:{},body:{token:'x'.repeat(40),isAdmin:true}},res);assert.equal(res.code,401);res=response();await f.api.registerChatDevice({method:'POST',headers:{authorization:'Bearer client'},body:{token:'x'.repeat(40),isAdmin:true,uid:'admin'}},res);assert.equal(res.body.uid,'client-a');assert.equal([...f.store.values()][0].isAdmin,false);res=response();await f.api.registerChatDevice({method:'POST',headers:{authorization:'Bearer admin'},body:{token:'x'.repeat(40),remove:true}},res);assert.equal(f.store.size,1)});
+test('Los mensajes privados van a su destinatario y no incluyen el texto en FCM',async()=>{const f=fixture();f.store.set('a',{uid:'client-a',isAdmin:false,token:'token-a'});f.store.set('b',{uid:'client-b',isAdmin:false,token:'token-b'});f.store.set('g',{uid:'admin',isAdmin:true,token:'token-admin'});f.store.set('r',{uid:'revoked',isAdmin:true,token:'token-revoked'});await f.api.notifyChatMessage({params:{conversationId:'client-a',messageId:'one'},data:{data:()=>({role:'client',text:'Contenido confidencial'})}});assert.deepEqual(f.sent.map(m=>m.token),['token-admin']);assert.ok(!JSON.stringify(f.sent).includes('Contenido confidencial'));f.sent.length=0;await f.api.notifyChatMessage({params:{conversationId:'client-a',messageId:'two'},data:{data:()=>({role:'admin',text:'Respuesta confidencial'})}});assert.deepEqual(f.sent.map(m=>m.token),['token-a']);assert.equal(f.sent[0].data.recipientUid,'client-a');assert.ok(!('topic' in f.sent[0]));});

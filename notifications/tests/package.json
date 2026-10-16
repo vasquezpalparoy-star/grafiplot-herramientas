@@ -1,0 +1,1 @@
+{"private":true,"scripts":{"test":"firebase --config ../firebase.test.json emulators:exec --only firestore --project demo-grafiplot-chat 'node --test chat-rules.test.cjs'"},"devDependencies":{"@firebase/rules-unit-testing":"6.0.0","firebase":"13.0.0","firebase-tools":"14.22.0"}}

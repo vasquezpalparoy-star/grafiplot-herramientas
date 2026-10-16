@@ -1,0 +1,24 @@
+const {test,after,before}=require('node:test');
+const fs=require('node:fs');
+const {initializeTestEnvironment,assertSucceeds,assertFails}=require('@firebase/rules-unit-testing');
+const {doc,setDoc,getDoc,getDocs,collection,serverTimestamp,updateDoc,deleteDoc,writeBatch}=require('firebase/firestore');
+let env,a,b,admin,anonymous;
+before(async()=>{env=await initializeTestEnvironment({projectId:'demo-grafiplot-chat',firestore:{host:'127.0.0.1',port:8080,rules:fs.readFileSync(__dirname+'/../firestore.rules','utf8')}});a=env.authenticatedContext('client-a').firestore();b=env.authenticatedContext('client-b').firestore();admin=env.authenticatedContext('admin',{admin:true}).firestore();anonymous=env.unauthenticatedContext().firestore()});
+after(async()=>{await env?.cleanup()});
+test('Cada cliente ve solo su conversación y el administrador puede responder',async()=>{
+ const parent=doc(a,'conversations/client-a'),message=doc(a,'conversations/client-a/messages/first');
+ const batch=writeBatch(a);batch.set(parent,{clientId:'client-a',clientName:'Cliente A',updatedAt:serverTimestamp()});batch.set(message,{text:'Consulta privada',senderId:'client-a',role:'client',createdAt:serverTimestamp()});await assertSucceeds(batch.commit());
+ await assertSucceeds(getDoc(parent));await assertSucceeds(getDoc(message));
+ await assertFails(getDoc(doc(b,parent.path)));await assertFails(getDoc(doc(b,message.path)));await assertFails(getDoc(doc(anonymous,message.path)));await assertFails(getDocs(collection(a,'conversations')));
+ await assertSucceeds(getDocs(collection(admin,'conversations')));await assertSucceeds(getDoc(doc(admin,message.path)));
+ await assertSucceeds(setDoc(doc(admin,'conversations/client-a/messages/reply'),{text:'Respuesta de Grafiplot',senderId:'admin',role:'admin',createdAt:serverTimestamp()}));
+ await assertFails(setDoc(doc(a,'conversations/client-a/messages/forged'),{text:'Falso administrador',senderId:'client-a',role:'admin',createdAt:serverTimestamp()}));
+ await assertFails(setDoc(doc(a,'conversations/client-a/messages/forged-sender'),{text:'Falso remitente',senderId:'admin',role:'client',createdAt:serverTimestamp()}));
+ await assertFails(setDoc(doc(a,'conversations/client-b'),{clientId:'client-b',clientName:'Ajeno',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(parent,{clientId:'client-b',updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(doc(a,'conversations/client-a/messages/oversized'),{text:'x'.repeat(4001),senderId:'client-a',role:'client',createdAt:serverTimestamp()}));
+ await assertFails(setDoc(doc(a,'conversations/client-a/messages/wrong-time'),{text:'Pasado',senderId:'client-a',role:'client',createdAt:new Date(0)}));
+ await assertFails(updateDoc(message,{text:'Editar'}));await assertFails(deleteDoc(message));
+ await assertFails(setDoc(doc(a,'chatDevices/token'),{uid:'client-a',isAdmin:true,token:'abc'}));await assertFails(getDoc(doc(a,'chatDevices/token')));
+ await assertFails(setDoc(doc(a,'announcements/forged'),{title:'Fraude'}));
+});
