@@ -19,5 +19,5 @@
     "webAppId": "1:900449408753:web:f99bddc91374e149537b50",
     "messagingSenderId": "900449408753"
   },
-  "notificationsEnabled": false
+  "notificationsEnabled": true
 }
