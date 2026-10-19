@@ -79,5 +79,5 @@ $('#messageForm').onsubmit=async e=>{
 };
 (async()=>{preview();try{
  service=await advertisingServices();service.sdk.onAuthStateChanged(service.auth,session);
- $('#configStatus').textContent='Grafiplot Publicidad conectado · versión 1.7. Los anuncios aparecen dentro de la app de clientes.';$('#configStatus').classList.add('good');$('#notify').disabled=!service.config.notificationsEnabled;
+ $('#configStatus').textContent='Grafiplot Publicidad conectado · versión 1.7. Los anuncios aparecen dentro de la app de clientes.';$('#configStatus').classList.add('good');$('#notify').disabled=!service.config.notificationsEnabled;$('#notifyLabel').textContent=service.config.notificationsEnabled?'Enviar también una notificación al teléfono':'Notificaciones al teléfono pendientes de conexión';
 }catch(e){$('#configStatus').textContent=accessError(e)}})();
