@@ -1,5 +1,18 @@
 # Grafiplot · Herramientas
 
+## Actualización 1.7
+
+- Inicio con siete herramientas, nombres grandes y explicación antes del botón **Continuar**.
+- **Libros e imágenes** integrado en la APK de clientes desde el proyecto Grifplotlibros recibido.
+- Chat interno retirado de las dos APK y de la web. El contacto y los envíos por WhatsApp se mantienen.
+- Administrador dedicado a Publicidad, con **Recuperar mi cuenta**, verificación del correo y comprobación de conexión.
+- La publicación comprueba que el anuncio sea consultable por los clientes; los errores de lectura ya no se muestran como una bandeja vacía.
+- Se conservan las opciones de notificaciones; la activación del envío en segundo plano sigue pendiente de conectar las credenciales privadas y el registro Android al proyecto Firebase correcto.
+
+La cuenta autorizada sigue siendo **grafiplotvasquez@gmail.com**, con contraseña propia de la aplicación y correo verificado. Las actualizaciones instalables necesitan el respaldo de firma original de Grafiplot; la firma de Grifplotlibros no lo sustituye.
+
+Las secciones siguientes documentan también versiones anteriores.
+
 Página de herramientas para clientes de Grafiplot. Incluye un editor del FUT de UNHEVAL y un creador de pósteres dividido en hojas A4.
 
 ## Funciones

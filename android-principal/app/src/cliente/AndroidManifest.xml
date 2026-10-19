@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+ <queries><package android:name="com.whatsapp"/><package android:name="com.whatsapp.w4b"/></queries>
+ <application>
+  <activity android:name="com.grifplot.libros.MainActivity" android:exported="false" android:theme="@style/LibrosTheme" android:configChanges="orientation|screenSize|keyboardHidden" android:windowSoftInputMode="adjustResize"/>
+  <provider android:name="com.grifplot.libros.ShareProvider" android:authorities="${applicationId}.libros.share" android:exported="false" android:grantUriPermissions="true"/>
+ </application>
+</manifest>

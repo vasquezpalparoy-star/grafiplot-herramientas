@@ -1,0 +1,9 @@
+package com.grifplot.libros;
+import java.text.Normalizer;
+import java.util.*;
+public final class SearchCore {
+ public static String norm(String s) { return Normalizer.normalize(s==null?"":s,Normalizer.Form.NFD).replaceAll("\\p{M}+","").toLowerCase(Locale.ROOT).replaceAll("[^\\p{L}\\p{N}]+"," ").trim().replaceAll("\\s+"," "); }
+ public static int distance(String a,String b){int[] prev=new int[b.length()+1],older=null;for(int j=0;j<prev.length;j++)prev[j]=j;for(int i=1;i<=a.length();i++){int[] next=new int[b.length()+1];next[0]=i;for(int j=1;j<next.length;j++){next[j]=Math.min(Math.min(next[j-1]+1,prev[j]+1),prev[j-1]+(a.charAt(i-1)==b.charAt(j-1)?0:1));if(i>1&&j>1&&a.charAt(i-1)==b.charAt(j-2)&&a.charAt(i-2)==b.charAt(j-1))next[j]=Math.min(next[j],older[j-2]+1);}older=prev;prev=next;}return prev[b.length()];}
+ public static boolean exact(String q,String title){return !norm(q).isEmpty()&&norm(q).equals(norm(title));}
+ public static double score(String query,String title,String author,String keywords){String q=norm(query),t=norm(title),a=norm(author),k=norm(keywords);if(q.isEmpty())return 1;if(q.equals(t))return 1000;if(q.equals(a))return 900;if(t.contains(q))return 800+20.0*q.length()/Math.max(1,t.length());if(a.contains(q))return 750;if(k.contains(q))return 650;String[] qs=q.split(" "),words=(t+" "+a+" "+k).trim().split(" ");double total=0;int matched=0; for(String w:qs){double best=0;for(String x:words){if(w.equals(x))best=1;else if(w.length()>=3&&x.startsWith(w))best=Math.max(best,.85);else if(w.length()>=4&&Math.abs(w.length()-x.length())<=2){int d=distance(w,x);if(d<=Math.max(1,w.length()/5))best=Math.max(best,1.0-(double)d/Math.max(w.length(),x.length()));}} total+=best;if(best>=.6)matched++;}return matched==qs.length?400+total/qs.length*100:(matched>0&&qs.length>1?100+total/qs.length*100:0);}
+}

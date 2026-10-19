@@ -1,0 +1,23 @@
+// Run with Node; no browser dependency. Exercises real injected click/selection code.
+const vm=require('vm'),fs=require('fs'),assert=require('assert');
+const listeners={};let painted=0;
+const anchor={tagName:'A',parentElement:null,href:'https://www.google.com/imgres?imgurl=https%3A%2F%2Fexample.org%2Foriginal.png&imgrefurl=https%3A%2F%2Fexample.org%2Farticle',getAttribute:()=>null,querySelectorAll:()=>[]};
+const img={tagName:'IMG',alt:'Flor azul',src:'https://encrypted-tbn0.gstatic.com/mini',currentSrc:'https://encrypted-tbn0.gstatic.com/mini',parentElement:anchor,style:{},querySelectorAll:()=>[],getAttribute:()=>null,getBoundingClientRect:()=>({width:180,height:120}),closest:(s)=>s==='img'?img:anchor,setAttribute:()=>painted++};
+const document={body:{},querySelectorAll:s=>s==='script'?[]:[img],addEventListener:(name,fn)=>listeners[name]=fn};
+const location={href:'https://www.google.com/search?tbm=isch&q=flor'};
+const context={document,location,URL,JSON,MutationObserver:class{observe(){}},window:{addEventListener:(name,fn)=>listeners[name]=fn}};
+vm.runInNewContext(fs.readFileSync(require('path').join(__dirname, '../../app/src/cliente/assets/image-selection.js'),'utf8'),context);
+let prevent=false,stop=false;listeners.click({target:img,preventDefault:()=>prevent=true,stopImmediatePropagation:()=>stop=true});
+const data=JSON.parse(new URL(location.href).searchParams.get('data'));
+assert(prevent&&stop,'click selects without navigating source');assert.equal(data.url,'https://example.org/original.png');assert.equal(data.source,'https://example.org/article');
+context.window.grifplotKeys=[data.url];context.window.grifplotPaint();assert.equal(img.style.outline,'6px solid #c91c2e');
+context.window.grifplotKeys=[];context.window.grifplotPaint();assert.equal(img.style.outline,'');
+let blur=false;listeners.focusin({target:{matches:()=>true,blur:()=>blur=true}});assert(blur,'website does not open Android keyboard');
+console.log('5 image selection checks passed');
+const plain={tagName:'DIV',parentElement:null,getAttribute:()=>null,querySelectorAll:()=>[]};img.parentElement=plain;img.currentSrc='https://encrypted-tbn0.gstatic.com/mini';img.src=img.currentSrc;
+location.href='https://www.google.com/search?tbm=isch&q=flor';context.window={addEventListener:(name,fn)=>listeners[name]=fn};
+document.querySelectorAll=s=>s==='script'?[{textContent:'[["https://encrypted-tbn0.gstatic.com/mini",120,180],["https://example.org/high-resolution.jpg",1200,1800]]'}]:[img];
+vm.runInNewContext(fs.readFileSync(require('path').join(__dirname, '../../app/src/cliente/assets/image-selection.js'),'utf8'),context);
+listeners.click({target:img,preventDefault:()=>{},stopImmediatePropagation:()=>{}});
+assert.equal(JSON.parse(new URL(location.href).searchParams.get('data')).url,'https://example.org/high-resolution.jpg');
+console.log('PASS original image URL recovered from Google metadata fixture');

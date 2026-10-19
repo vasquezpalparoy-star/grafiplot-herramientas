@@ -1,0 +1,5 @@
+import com.grifplot.libros.SearchCore;
+public class SearchCoreTest {
+ static void check(boolean ok,String name){if(!ok)throw new AssertionError(name);System.out.println("OK "+name);}
+ public static void main(String[] args){check(SearchCore.exact("EXÁMENES UNHEVAL","Examenes unheval"),"mayúsculas y tildes");check(SearchCore.score("quijtoe","Don Quijote de la Mancha","Miguel de Cervantes","")>0,"error de escritura por transposición");check(SearchCore.score("quijote","Don Quijote de la Mancha","","")>0,"título incompleto");check(SearchCore.score("cervantes","Don Quijote","Miguel de Cervantes","")>0,"autor");check(SearchCore.score("admisión","Prueba UNHEVAL","","admisión universidad")>0,"palabras clave");check(!SearchCore.exact("quijote","Don Quijote"),"parecido nunca es exacto");check(SearchCore.score("astronomia","Cocina casera","María","")==0,"sin coincidencias");check(SearchCore.score("quijote","Quijote","","")>SearchCore.score("quijote","Don Quijote","",""),"exacto antes de parcial");check(SearchCore.score("","Libro","","")==1,"catálogo sin búsqueda");check(SearchCore.norm("  Á B! ").equals("a b"),"espacios y signos");}
+}

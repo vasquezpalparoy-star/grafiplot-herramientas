@@ -1,0 +1,5 @@
+package com.grifplot.libros;
+public class MetadataLicenseTest {
+ static void check(boolean ok,String name){if(!ok)throw new AssertionError(name);System.out.println("OK "+name);}
+ public static void main(String[] args){check(PdfMetadata.field("<< /Title (Manual de \\050prueba\\051) /Author (Maria) >>","Title").equals("Manual de (prueba)"),"metadatos con escapes PDF");check(PdfMetadata.field("/Title <FEFF004C006900620072006F>","Title").equals("Libro"),"metadatos UTF-16");check(PdfMetadata.field("/Author (María)","Author").equals("María"),"autor PDF");check(OpenLibrarySearch.allowedLicense("https://creativecommons.org/licenses/by/4.0/"),"CC BY");check(OpenLibrarySearch.allowedLicense("http://creativecommons.org/publicdomain/zero/1.0/"),"CC0");check(!OpenLibrarySearch.allowedLicense("https://creativecommons.org.evil.test/licenses/by/4.0/"),"dominio falso excluido");check(!OpenLibrarySearch.allowedLicense("https://creativecommons.org/licenses/by-nc/4.0/"),"licencia no comercial excluida para el local");check(!OpenLibrarySearch.allowedLicense("https://example.com/free.pdf"),"sin licencia excluido");}
+}

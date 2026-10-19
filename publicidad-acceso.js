@@ -1,4 +1,4 @@
-import {advertisingServices,advertisingAdmin,accessError} from './publicidad-auth.js';const $=s=>document.querySelector(s);let service,busy=false;
+import {advertisingServices,advertisingAdmin,accessError} from './publicidad-auth.js?v=1.7';const $=s=>document.querySelector(s);let service,busy=false;
 function say(text){$('#authStatus').textContent=text}
 async function session(user){$('#pendingAccess').hidden=!user;if(!user)return;if(advertisingAdmin(user)){location.replace('admin-avisos.html');return}$('#resendVerification').hidden=user.emailVerified;say(user.emailVerified?'Este correo no está autorizado. Usa grafiplotvasquez@gmail.com.':'Cuenta creada. Verifica tu correo con el enlace y pulsa Ya verifiqué mi correo.');}
 async function run(task){if(!service||busy)return;busy=true;try{await task()}catch(e){say(accessError(e))}finally{busy=false}}
