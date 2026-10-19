@@ -2,7 +2,8 @@
 
 ## Actualización 1.7
 
-- Inicio con siete herramientas, nombres grandes y explicación antes del botón **Continuar**.
+- Inicio con ocho herramientas, nombres grandes y explicación antes del botón **Continuar**.
+- **Mi Delivery** abre el seguimiento de pedidos de grafiplotvasquez.com dentro de la APK. El cliente puede mantener su sesión y cerrarla cuando lo necesite.
 - **Libros e imágenes** integrado en la APK de clientes desde el proyecto Grifplotlibros recibido.
 - Chat interno retirado de las dos APK y de la web. El contacto y los envíos por WhatsApp se mantienen.
 - Administrador dedicado a Publicidad, con **Recuperar mi cuenta**, verificación del correo y comprobación de conexión.

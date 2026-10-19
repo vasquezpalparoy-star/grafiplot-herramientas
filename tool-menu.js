@@ -1,5 +1,9 @@
 (() => {
   const descriptions = {
+    'delivery.html': {
+      features: ['Entrar con el usuario y la contraseña que te entregó Grafiplot.', 'Consultar el avance de tus pedidos y su hora aproximada de entrega.', 'Ver si tu pedido ya salió con el delivery o fue entregado.', 'Mantener tu sesión en la APK para revisar tus próximos pedidos.'],
+      note: 'Necesitas Internet. La primera vez debes iniciar sesión; después podrás volver a consultar tus pedidos desde este dispositivo. Puedes usar Cerrar sesión cuando lo necesites.'
+    },
     'fut.html': {
       features: ['Completar tus datos y la solicitud del FUT de UNHEVAL.', 'Ajustar el texto y revisar el documento.', 'Descargar el PDF o enviarlo a la impresora del local desde la APK.']
     },
