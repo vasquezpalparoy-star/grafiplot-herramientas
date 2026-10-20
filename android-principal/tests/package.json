@@ -2,7 +2,7 @@
   "name": "grafiplot-android-integration-checks",
   "private": true,
   "scripts": {
-    "test": "node tool-menu.test.cjs && node publicidad.test.cjs && node auth-access.test.cjs && node announcements-v18.test.cjs && node libros/ImageSelectionTest.js"
+    "test": "node tool-menu.test.cjs && node publicidad.test.cjs && node auth-access.test.cjs && node announcements-v18.test.cjs && node chat-removal.test.cjs && node libros/ImageSelectionTest.js"
   },
   "devDependencies": {
     "jsdom": "30.1.3"
