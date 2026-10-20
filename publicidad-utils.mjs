@@ -34,3 +34,12 @@ export async function waitForPublication(operation, ms = 20000) {
     })]);
   } finally { clearTimeout(timer); }
 }
+
+export async function deleteAdvertisement(service,requestId){
+ const user=service.auth.currentUser;
+ if(!user||!user.emailVerified||user.email?.toLowerCase()!=='grafiplotvasquez@gmail.com')throw Error('Inicia sesión con tu cuenta de administrador verificada.');
+ if(typeof requestId!=='string'||!requestId||requestId.includes('/'))throw Error('Publicación no válida.');
+ await waitForPublication(user.getIdToken(true));
+ await waitForPublication(service.fs.deleteDoc(service.fs.doc(service.db,'advertisements',requestId)));
+ return {deleted:true,id:requestId};
+}

@@ -11,13 +11,14 @@ async function settle(){for(let i=0;i<5;i++)await tick()}
  await assert.rejects(utils.waitForPublication(new Promise(()=>{}),5),e=>e.code==='publication-timeout');
  const dom=new JSDOM(fs.readFileSync(path.join(root,'admin-avisos.html'),'utf8'),{url:'https://appassets.androidplatform.net/admin-avisos.html',runScripts:'outside-only'});
  const w=dom.window,doc=w.document,ctx=dom.getInternalVMContext();
- let currentDoc=null,published=0,recovered=0;
- const user={uid:'fixture-owner',email:'grafiplotvasquez@gmail.com',emailVerified:true,reload:async()=>{},getIdToken:async()=>{}};
- const service={config:{},auth:{currentUser:null},sdk:{onAuthStateChanged:(auth,callback)=>callback(null),sendPasswordResetEmail:async(auth,email)=>{assert.equal(email,user.email);recovered++},signInWithEmailAndPassword:async()=>{service.auth.currentUser=user;return {user}}},fs:{doc:(db,col,id)=>({id}),getDocFromServer:async()=>({exists:()=>!!currentDoc,data:()=>currentDoc}),setDoc:async(ref,data)=>{currentDoc={...data,announcement_id:ref.id};published++},serverTimestamp:()=>({serverTimestamp:true})}};
+ let currentDoc=null,published=0,recovered=0,deleted=0;
+ const user={uid:'fixture-owner',email:'grafiplotvasquez@gmail.com',emailVerified:true,reload:async()=>{},getIdToken:async()=>"fixture-token"};
+ const service={config:{},auth:{currentUser:null},sdk:{onAuthStateChanged:(auth,callback)=>callback(null),sendPasswordResetEmail:async(auth,email)=>{assert.equal(email,user.email);recovered++},signInWithEmailAndPassword:async()=>{service.auth.currentUser=user;return {user}}},fs:{doc:(db,col,id)=>({id}),getDocFromServer:async()=>({exists:()=>!!currentDoc,data:()=>currentDoc}),setDoc:async(ref,data)=>{currentDoc={...data,announcement_id:ref.id};published++},deleteDoc:async ref=>{assert.equal(ref.id,currentDoc.announcement_id);deleted++;currentDoc=null},serverTimestamp:()=>({serverTimestamp:true})}};
  w.advertisingServices=async()=>service;
  w.advertisingAdmin=u=>!!u&&u.emailVerified&&u.email===user.email;
  w.accessError=e=>e.message;
  w.publicationId=utils.publicationId;w.waitForPublication=utils.waitForPublication;w.notifyAdvertisement=utils.notifyAdvertisement;
+ w.deleteAdvertisement=utils.deleteAdvertisement;
  w.confirm=()=>true;
  vm.runInContext(fs.readFileSync(path.join(root,'avisos-common.js'),'utf8'),ctx);
  w.GrafiplotAvisos.feed=async()=>currentDoc?[currentDoc]:[];
@@ -32,6 +33,7 @@ async function settle(){for(let i=0;i<5;i++)await tick()}
  service.config={notificationsEnabled:true,sendUrl:'https://intsmwiivbdaversvlky.supabase.co/functions/v1/grafiplot-chat'};
  const notified=await utils.notifyAdvertisement(service,'fixture',{},async(url,request)=>{assert.equal(JSON.parse(request.body).notify,true);assert.equal(JSON.parse(request.body).action,'announcement');return {ok:true,json:async()=>({accepted:true})}});
  assert.equal(notified.accepted,true);
+ const remove=doc.querySelector('#publishedList button');assert.ok(remove);remove.click();remove.click();await settle();assert.equal(deleted,1);assert.equal(doc.querySelectorAll('#publishedList button').length,0);assert.match(doc.querySelector('#publishedStatus').textContent,/eliminada/);
  console.log('PASS: account recovery, verified access, confirmed publication, double tap and retry without duplicates.');
  const home=new JSDOM(fs.readFileSync(path.join(root,'index.html'),'utf8'),{url:'https://appassets.androidplatform.net/index.html',pretendToBeVisual:true,runScripts:'outside-only'});
  let fail=true;

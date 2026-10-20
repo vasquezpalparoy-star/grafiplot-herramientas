@@ -33,6 +33,8 @@ public class MainActivity extends Activity {
    @Override public void onPageFinished(WebView v,String url){if(url.startsWith(ORIGIN+"/"))v.evaluateJavascript(DOWNLOAD_SCRIPT,null);}
   });tools.setDownloadListener((url,userAgent,disposition,mime,length)->{if(url.startsWith(ORIGIN+"/"))saveAsset(Uri.parse(url).getPath());else if(url.startsWith("https://"))external(url);});tools.loadUrl(HOME);handleLaunch(getIntent());
  }
+ @Override protected void onResume(){super.onResume();GrafiplotPush.resume(this);}
+ void pushChanged(){runOnUiThread(()->{if(tools!=null)tools.evaluateJavascript("window.dispatchEvent(new Event('grafiplot-push-state'))",null);});}
  private boolean adminPage(String path){return "/admin-avisos.html".equals(path)||"/administrador.html".equals(path);}
  private int dp(int n){return Math.round(n*getResources().getDisplayMetrics().density);}
  private Button button(String text,View.OnClickListener cb){Button b=new Button(this);b.setText(text);b.setTextSize(12);b.setTextColor(Color.WHITE);b.setBackgroundColor(Color.TRANSPARENT);b.setAllCaps(false);b.setPadding(dp(10),0,dp(10),0);b.setOnClickListener(cb);return b;}
@@ -65,6 +67,8 @@ public class MainActivity extends Activity {
  public class Downloads {
   @JavascriptInterface public String appEdition(){return BuildConfig.ADMIN_APP?"admin":"client";}
   @JavascriptInterface public String notificationStatus(){return GrafiplotPush.status();}
+  @JavascriptInterface public void testNotification(){runOnUiThread(()->GrafiplotPush.test(MainActivity.this));}
+  @JavascriptInterface public void notificationSettings(){runOnUiThread(()->GrafiplotPush.settings(MainActivity.this));}
   @JavascriptInterface public String notificationMessages(){return GrafiplotPush.messages();}
   @JavascriptInterface public void enableNotifications(){runOnUiThread(()->GrafiplotPush.enable(MainActivity.this));}
   @JavascriptInterface public void disableNotifications(){GrafiplotPush.disable();}
@@ -83,7 +87,7 @@ public class MainActivity extends Activity {
  private void requestSave(byte[] bytes,String mime,String filename){if(pendingBytes!=null){toast("Termina de guardar el archivo anterior");return;}pendingBytes=bytes;String safe=filename.replaceAll("[\\\\/\\r\\n]","_");if(safe.length()>150)safe=safe.substring(0,150);Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.addCategory(Intent.CATEGORY_OPENABLE);i.setType(mime==null||mime.isEmpty()?"application/octet-stream":mime);i.putExtra(Intent.EXTRA_TITLE,safe);try{startActivityForResult(i,12);}catch(Exception e){pendingBytes=null;toast("No se pudo abrir el selector para guardar");}}
  private void saveAsset(String path){if(path==null||path.contains(".."))return;try(InputStream in=getAssets().open(path.startsWith("/")?path.substring(1):path);ByteArrayOutputStream out=new ByteArrayOutputStream()){byte[] buf=new byte[16384];int n;while((n=in.read(buf))!=-1)out.write(buf,0,n);requestSave(out.toByteArray(),"application/pdf",Uri.parse(path).getLastPathSegment());}catch(Exception e){toast("No se pudo abrir el PDF");}}
  @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request==10&&chooser!=null){chooser.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result,data));chooser=null;}if(request==12){if(result==RESULT_OK&&data!=null&&data.getData()!=null&&pendingBytes!=null){try(OutputStream out=getContentResolver().openOutputStream(data.getData())){out.write(pendingBytes);toast("Archivo guardado");if(pendingPrintMessage!=null)external("https://wa.me/51952628844?text="+Uri.encode(pendingPrintMessage));}catch(Exception e){toast("No se pudo guardar el archivo");}}pendingBytes=null;pendingPrintMessage=null;}}
- @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){super.onRequestPermissionsResult(code,permissions,results);if(code==41&&results.length>0&&results[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)GrafiplotPush.granted();}
+ @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){super.onRequestPermissionsResult(code,permissions,results);if(code==41&&results.length>0&&results[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)GrafiplotPush.granted();else if(code==41)GrafiplotPush.denied();}
  @Override public void onBackPressed(){goBack();}
  @Override protected void onDestroy(){if(chooser!=null)chooser.onReceiveValue(null);if(tools!=null){tools.removeJavascriptInterface("AndroidPrint");tools.destroy();}if(site!=null)site.destroy();super.onDestroy();}
  private static final String DOWNLOAD_SCRIPT="(function(){if(window.__grafiplotDownloads)return;window.__grafiplotDownloads=true;const save=async(a)=>{try{const blob=await(await fetch(a.href)).blob();const r=new FileReader();r.onload=()=>AndroidPrint.saveFile(r.result.split(',')[1],blob.type||'application/pdf',a.download||'Grafiplot.pdf');r.readAsDataURL(blob)}catch(e){alert('No se pudo preparar la descarga')}};const click=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){if(this.href.startsWith('blob:')&&this.download){save(this);return}return click.call(this)};document.addEventListener('click',e=>{const a=e.target.closest('a');if(a&&a.href.startsWith('blob:')&&a.download){e.preventDefault();save(a)}},true)})();";

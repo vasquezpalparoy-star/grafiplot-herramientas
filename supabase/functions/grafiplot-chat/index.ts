@@ -1,3 +1,4 @@
+import {announcementMessage} from './announcement-message.mjs';
 import {createRemoteJWKSet,jwtVerify,importPKCS8,SignJWT} from 'npm:jose@6.2.12';
 const PROJECT='grafiplot-publicidad';const LEGACY_PROJECT='grafiplot-herramientas';
 const JWKS=createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
@@ -24,7 +25,7 @@ Deno.serve(async(req:Request)=>{
  try{
   const url=new URL(req.url);let body:any={};if(req.method==='POST'){const raw=await req.text();if(raw.length>64000)return reply({error:'Solicitud demasiado grande'},413);try{body=JSON.parse(raw)}catch{return reply({error:'Solicitud no válida'},400)}}
   const action=req.method==='GET'?url.searchParams.get('action')||'status':body.action||(body.token?'device':'');
-  if(action==='status')return reply({chatEnabled:true,pushEnabled:!!serviceAccount(),provider:'supabase',firebaseProject:PROJECT});
+  if(action==='status')return reply({chatEnabled:true,pushEnabled:!!serviceAccount(),provider:'supabase',firebaseProject:PROJECT,announcementTransport:'notification-and-data-v2'});
   if(action==='feed'){const rows=await db('grafiplot_announcements?select=id,title,body,style,target,image_url,created_at&status=in.(accepted,published)&order=created_at.desc&limit=20');return reply({messages:rows.map((x:any)=>({announcement_id:x.id,title:x.title,body:x.body,style:x.style,target:x.target,imageUrl:x.image_url,createdAt:Date.parse(x.created_at)}))});}
   const who=await identity(req);
   if(action==='profile')return reply({uid:who.uid,isAdmin:who.admin,name:who.name,pushEnabled:!!serviceAccount()});
@@ -49,7 +50,7 @@ Deno.serve(async(req:Request)=>{
    const previous=await db('grafiplot_announcements?select=id,status&id=eq.'+requestId+'&limit=1');if(previous.length)return ['accepted','published'].includes(previous[0].status)?reply({published:true,accepted:previous[0].status==='accepted',id:requestId,alreadyAccepted:true}):reply({error:'El envío anterior no está confirmado. Revisa el servidor antes de repetirlo.'},409);
    await db('grafiplot_announcements','POST',{id:requestId,title:title.trim(),body:text.trim(),style,target,image_url:imageUrl,status:body.notify===true?'pending':'published',author_uid:who.uid},{Prefer:'return=representation'});
    if(body.notify!==true)return reply({published:true,pushConfirmed:false,id:requestId});
-   try{await push({topic:'grafiplot_clientes',data:{announcement_id:requestId,title:title.trim(),body:text.trim(),style,target,imageUrl},android:{priority:'high',ttl:'86400s'}});await db('grafiplot_announcements?id=eq.'+requestId,'PATCH',{status:'accepted'},{Prefer:'return=representation'});return reply({published:true,accepted:true,id:requestId})}catch{await db('grafiplot_announcements?id=eq.'+requestId,'PATCH',{status:'unconfirmed'},{Prefer:'return=representation'});return reply({error:'No se confirmó el aviso. Revisa el servidor antes de repetirlo.'},502)}
+   try{await push(announcementMessage({requestId,title,body:text,style,target,imageUrl}));await db('grafiplot_announcements?id=eq.'+requestId,'PATCH',{status:'accepted'},{Prefer:'return=representation'});return reply({published:true,accepted:true,id:requestId})}catch{await db('grafiplot_announcements?id=eq.'+requestId,'PATCH',{status:'unconfirmed'},{Prefer:'return=representation'});return reply({error:'No se confirmó el aviso. Revisa el servidor antes de repetirlo.'},502)}
   }
   return reply({error:'Operación no disponible'},400);
  }catch(error){if(error instanceof Error&&error.message==='unauthorized')return reply({error:'Inicia sesión de nuevo'},401);const e=error as any;if(e.code==='rate_limit')return reply({error:'Has enviado muchos mensajes. Espera un minuto.'},429);if(e.code==='id_conflict')return reply({error:'Este intento pertenece a otro mensaje.'},409);return reply({error:'No se confirmó la operación. Revisa tu conexión antes de repetirla.'},500)}

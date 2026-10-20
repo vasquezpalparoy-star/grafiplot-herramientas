@@ -20,7 +20,7 @@ android {
  buildToolsVersion '35.0.0'
  signingConfigs { release { if (System.getenv('GRAFIPLOT_KEYSTORE')) { storeFile file(System.getenv('GRAFIPLOT_KEYSTORE')); storePassword System.getenv('GRAFIPLOT_STORE_PASSWORD'); keyAlias 'grafiplot'; keyPassword System.getenv('GRAFIPLOT_KEY_PASSWORD'); enableV1Signing true; enableV2Signing true; enableV3Signing true } } }
  buildTypes { release { if (System.getenv('GRAFIPLOT_KEYSTORE')) signingConfig signingConfigs.release; debuggable false; minifyEnabled false } }
- defaultConfig { applicationId 'pe.grafiplot.herramientas'; minSdk 26; targetSdk 35; versionCode 13; versionName '1.7.2' }
+ defaultConfig { applicationId 'pe.grafiplot.herramientas'; minSdk 26; targetSdk 35; versionCode 14; versionName '1.8' }
  sourceSets { main { assets.srcDir(layout.buildDirectory.dir('generated/grafiplotAssets')) } }
 }
 
