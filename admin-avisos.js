@@ -2,8 +2,8 @@ import {advertisingServices,advertisingAdmin,accessError} from './publicidad-aut
 import {publicationId,waitForPublication,notifyAdvertisement,deleteAdvertisement} from './publicidad-utils.mjs?v=1.8';
 const A=GrafiplotAvisos,$=s=>document.querySelector(s);
 let service,allowed=false,requestId=null,busy=false;
-function message(){return {title:$('#title').value.trim(),body:$('#body').value.trim(),style:$('#style').value,imageUrl:A.imageUrl($('#imageUrl').value),target:$('#target').value}}
-function preview(){$('#imageStatus').textContent=A.imageUrl($('#imageUrl').value)?'Cargando vista previa…':'Usa un enlace HTTPS directo o un archivo de Google Drive compartido públicamente.';if(!busy)requestId=null;$('#preview').innerHTML=A.card(message());$('#preview').firstElementChild.classList.add('featured-card');$('#sendButton').disabled=!allowed||busy}
+function message(){const msg={title:$('#title').value.trim(),body:$('#body').value.trim(),style:$('#style').value,imageUrl:A.imageUrl($('#imageUrl').value),target:$('#target').value};return msg.target==='custom'?A.withDestination(msg,$('#destinationUrl').value):msg}
+function preview(){const custom=$('#target').value==='custom';$('#customLinkFields').hidden=!custom;$('#destinationUrl').required=custom;let msg;try{msg=message()}catch{msg={title:$('#title').value,body:$('#body').value,style:$('#style').value,imageUrl:A.imageUrl($('#imageUrl').value),target:'pagina-web'}}$('#imageStatus').textContent=A.imageUrl($('#imageUrl').value)?'Cargando vista previa…':'Usa un enlace HTTPS directo o un archivo de Google Drive compartido públicamente.';if(!busy)requestId=null;$('#preview').innerHTML=A.card(msg);$('#preview').firstElementChild.classList.add('featured-card');$('#sendButton').disabled=!allowed||busy}
 $('#messageForm').oninput=preview;$('#messageForm').onchange=preview;
 async function session(user){
  allowed=advertisingAdmin(user);
@@ -53,7 +53,7 @@ $('#logoutButton').onclick=()=>access(async()=>{await service.sdk.signOut(servic
 $('#messageForm').onsubmit=async e=>{
  e.preventDefault();if(busy)return;
  if(!service||!allowed||!service.auth.currentUser){$('#sendStatus').textContent='Primero inicia sesión y verifica tu correo de administrador.';return;}
- const msg=message(),notify=$('#notify').checked;
+ let msg;try{msg=message()}catch(e){$('#sendStatus').textContent=e.message;return;}const notify=$('#notify').checked;
  if(!msg.title||!msg.body){$('#sendStatus').textContent='Completa el título y el mensaje.';return;}
  if($('#imageUrl').value.trim()&&!msg.imageUrl){$('#sendStatus').textContent='El enlace de imagen debe usar HTTPS y ser público.';return;}
  if(msg.style==='imagen'&&!/^https:\/\//.test(msg.imageUrl)){$('#sendStatus').textContent='Añade un enlace HTTPS para la imagen.';return;}
@@ -82,7 +82,7 @@ $('#messageForm').onsubmit=async e=>{
 };
 (async()=>{preview();try{
  service=await advertisingServices();service.sdk.onAuthStateChanged(service.auth,session);
- $('#configStatus').textContent='Grafiplot Publicidad conectado · versión 1.8. Los anuncios aparecen dentro de la app de clientes.';$('#configStatus').classList.add('good');$('#notify').disabled=!service.config.notificationsEnabled;$('#notify').checked=!!service.config.notificationsEnabled;$('#notifyLabel').textContent=service.config.notificationsEnabled?'Enviar también una notificación al teléfono':'Notificaciones al teléfono pendientes de conexión';
+ $('#configStatus').textContent='Grafiplot Publicidad conectado · versión 1.9. Los anuncios aparecen dentro de la app de clientes.';$('#configStatus').classList.add('good');$('#notify').disabled=!service.config.notificationsEnabled;$('#notify').checked=!!service.config.notificationsEnabled;$('#notifyLabel').textContent=service.config.notificationsEnabled?'Enviar también una notificación al teléfono':'Notificaciones al teléfono pendientes de conexión';
 }catch(e){$('#configStatus').textContent=accessError(e)}})();
 
 let deleting=false,publicationLoad=0;

@@ -1,0 +1,30 @@
+/* Publicidad 1.9: media pantalla, movimiento suave y enlace en toda la tarjeta. */
+.notification.animated-ad{border:0;border-radius:24px;box-shadow:0 14px 40px #2610251a;padding:26px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(135deg,#ffe6ee,#fff5e8);color:#641d37}
+.animated-ad.promocion{background:linear-gradient(135deg,#063d40,#0e7168 65%,#259c79);color:#fff}
+.animated-ad.importante{background:linear-gradient(135deg,#43133f,#862c59 65%,#d15a57);color:#fff}
+.animated-ad.imagen{background:linear-gradient(135deg,#25214e,#69488f);color:#fff}
+.animated-ad .ad-topline{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.animated-ad .ad-topline small{color:inherit!important;opacity:.85;font-size:10px;letter-spacing:1.6px}
+.animated-ad .ad-pause,.animated-ad .ad-read{position:relative;z-index:3;align-self:flex-start;background:#ffffff25;color:inherit;border:1px solid #ffffff55;border-radius:30px;cursor:pointer;padding:8px 12px;font:600 12px/1.2 Arial,sans-serif}
+.animated-ad .ad-pause{min-width:36px;min-height:36px;padding:8px}
+.animated-ad strong{color:inherit;font-size:clamp(28px,5vw,46px);line-height:1.12;letter-spacing:-.8px;margin:6px 0;white-space:pre-wrap;animation:ad-title-float 5s ease-in-out infinite}
+.notification.animated-ad p{color:inherit;line-height:1.5;margin:0;white-space:pre-wrap;font-size:16px}
+.animated-ad .ad-link{align-self:flex-start;position:static;margin-top:auto;display:inline-flex;gap:25px;align-items:center;color:#fff;background:#ae234f;border-radius:30px;padding:13px 20px;text-decoration:none;font-size:13px;font-weight:700;box-shadow:0 6px 20px #0002}
+.animated-ad.promocion .ad-link,.animated-ad.importante .ad-link,.animated-ad.imagen .ad-link{background:#fff;color:#35223e}
+.animated-ad .ad-link::after{content:'';position:absolute;inset:0;z-index:2;border-radius:inherit}
+.animated-ad .ad-link:focus-visible::after{outline:3px solid #3583ff;outline-offset:-4px}
+.animated-ad .ad-link span{animation:ad-arrow 2.6s ease-in-out infinite}
+.animated-ad::after{content:'';position:absolute;inset:-60% -35%;z-index:-1;width:auto;height:auto;border:0;border-radius:0;background:linear-gradient(110deg,transparent 42%,#ffffff18 50%,transparent 58%);animation:ad-glow 8s ease-in-out infinite;pointer-events:none;display:block!important}
+.animated-ad.has-image::after{z-index:-1}.animated-ad.has-image::before{background:linear-gradient(110deg,#11101be8,#1a11296b)}
+.client-home .featured-card.animated-ad{box-sizing:border-box;min-height:50vh;min-height:50svh;padding:26px!important;border-radius:24px!important;gap:14px;justify-content:flex-start;box-shadow:0 12px 30px #41243a20}
+.client-home .featured-card.animated-ad strong{font-size:clamp(30px,7vw,46px);line-height:1.12;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:6px 0}
+.client-home .featured-card.animated-ad p{font-size:16px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin:0}
+.client-home .featured-card.animated-ad .ad-link{padding:13px 20px;font-size:13px}
+.animated-ad.ad-expanded p,.client-home .featured-card.animated-ad.ad-expanded p{display:block;-webkit-line-clamp:unset;overflow:visible}
+.animated-ad.ad-paused,.animated-ad.ad-paused *,.animated-ad.ad-paused::after{animation-play-state:paused!important}
+.featured-preview .animated-ad{min-height:360px;padding:26px!important}
+@keyframes ad-title-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes ad-arrow{0%,75%,100%{transform:translate(0,0)}35%{transform:translate(3px,-3px)}}
+@keyframes ad-glow{0%,25%{transform:translateX(-25%)}75%,100%{transform:translateX(25%)}}
+@media(max-width:360px){.client-home .featured-card.animated-ad{padding:20px!important}.client-home .featured-card.animated-ad strong{font-size:28px}.client-home .featured-card.animated-ad p{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.animated-ad,.animated-ad *,.animated-ad::after{animation:none!important}.animated-ad .ad-pause{display:none}}

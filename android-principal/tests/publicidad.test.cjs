@@ -34,7 +34,11 @@ async function settle(){for(let i=0;i<5;i++)await tick()}
  const notified=await utils.notifyAdvertisement(service,'fixture',{},async(url,request)=>{assert.equal(JSON.parse(request.body).notify,true);assert.equal(JSON.parse(request.body).action,'announcement');return {ok:true,json:async()=>({accepted:true})}});
  assert.equal(notified.accepted,true);
  const remove=doc.querySelector('#publishedList button');assert.ok(remove);remove.click();remove.click();await settle();assert.equal(deleted,1);assert.equal(doc.querySelectorAll('#publishedList button').length,0);assert.match(doc.querySelector('#publishedStatus').textContent,/eliminada/);
- console.log('PASS: account recovery, verified access, confirmed publication, double tap and retry without duplicates.');
+ doc.querySelector('#target').value='custom';doc.querySelector('#target').dispatchEvent(new w.Event('change',{bubbles:true}));assert.equal(doc.querySelector('#customLinkFields').hidden,false);
+ submit();await settle();assert.equal(published,1,'missing custom destination must not publish');
+ doc.querySelector('#destinationUrl').value='https://ejemplo.com/promocion';doc.querySelector('#destinationUrl').dispatchEvent(new w.Event('input',{bubbles:true}));
+ assert.equal(doc.querySelector('#preview a').href,'https://ejemplo.com/promocion');submit();await settle();assert.equal(published,2);assert.equal(currentDoc.target,'pagina-web');assert.equal(w.GrafiplotAvisos.content(currentDoc).url,'https://ejemplo.com/promocion');
+ console.log('PASS: account recovery, verified access, confirmed publication, double tap, retry without duplicates, and administrator custom-link publication.');
  const home=new JSDOM(fs.readFileSync(path.join(root,'index.html'),'utf8'),{url:'https://appassets.androidplatform.net/index.html',pretendToBeVisual:true,runScripts:'outside-only'});
  let fail=true;
  home.window.GrafiplotAvisos={config:async()=>({announcementsEnabled:true,advertisingFirebase:{projectId:'fixture'}}),feed:async()=>{if(fail)throw Error('offline');return [{announcement_id:'fixture',title:'fixture'}]},card:()=>'<article>Fixture advertisement</article>'};

@@ -1,0 +1,22 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const {JSDOM}=require('jsdom');
+const root=path.resolve(__dirname,'../..');
+(async()=>{
+ const dom=new JSDOM('<main></main>',{url:'https://example.test',runScripts:'outside-only'}),w=dom.window;
+ vm.runInContext(fs.readFileSync(path.join(root,'avisos-common.js'),'utf8'),dom.getInternalVMContext());
+ const A=w.GrafiplotAvisos,base={title:'Oferta <script>alert(1)</script>',body:'Tu promoción. '.repeat(30),style:'promocion',target:'inicio',imageUrl:''};
+ const packed=A.withDestination(base,'https://ejemplo.com/promocion?a=1&b=2');
+ assert.equal(packed.target,'pagina-web');assert.ok(packed.body.length<=1000);
+ assert.deepEqual(Object.keys(packed).sort(),Object.keys(base).sort(),'compatible with deployed Firestore field allowlist');
+ assert.equal(A.content(packed).body,base.body);assert.equal(A.content(packed).url,'https://ejemplo.com/promocion?a=1&b=2');
+ for(const bad of ['javascript:alert(1)','http://example.com','https://user:pass@example.com','data:text/html,hello','https://example.com/'+ 'a'.repeat(250)])assert.throws(()=>A.withDestination(base,bad));
+ w.document.querySelector('main').innerHTML=A.card(packed);
+ const a=w.document.querySelector('a');assert.equal(a.href,'https://ejemplo.com/promocion?a=1&b=2');assert.equal(a.rel,'noopener noreferrer');assert.equal(w.document.querySelector('script'),null);assert.ok(!w.document.querySelector('p').textContent.includes('Enlace del anuncio:'));
+ const pause=w.document.querySelector('[data-pause-ad]');pause.click();assert.equal(pause.getAttribute('aria-pressed'),'true');assert.ok(w.document.querySelector('article').classList.contains('ad-paused'));pause.click();assert.equal(pause.getAttribute('aria-pressed'),'false');
+ const read=w.document.querySelector('[data-read-ad]');read.click();assert.equal(read.getAttribute('aria-expanded'),'true');assert.ok(w.document.querySelector('article').classList.contains('ad-expanded'));read.click();assert.equal(read.getAttribute('aria-expanded'),'false');
+ w.fetch=async()=>({ok:true,json:async()=>[{document:{name:'projects/p/databases/(default)/documents/advertisements/a',fields:{title:{stringValue:packed.title},body:{stringValue:packed.body},target:{stringValue:packed.target}}}}]});
+ const list=await A.feed({advertisingFirebase:{projectId:'fixture'}});assert.equal(A.content(list[0]).url,A.content(packed).url,'custom destination survives actual feed decoding');
+ assert.equal(A.content({body:packed.body,target:'inicio'}).url,'','only website destination can carry a custom link');
+ assert.equal(A.content({body:'Legacy advertisement',target:'pagina-web'}).url,'','old advertisements retain original website');
+ dom.window.close();console.log('PASS: custom destinations survive feed, reject unsafe URLs, preserve Firestore schema, escape text, pause motion and expand long copy.');
+})().catch(e=>{console.error(e);process.exitCode=1});
