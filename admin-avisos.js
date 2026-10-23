@@ -2,8 +2,8 @@ import {advertisingServices,advertisingAdmin,accessError} from './publicidad-aut
 import {publicationId,waitForPublication,notifyAdvertisement,deleteAdvertisement} from './publicidad-utils.mjs?v=1.8';
 const A=GrafiplotAvisos,$=s=>document.querySelector(s);
 let service,allowed=false,requestId=null,busy=false;
-function message(){const msg={title:$('#title').value.trim(),body:$('#body').value.trim(),style:$('#style').value,imageUrl:A.imageUrl($('#imageUrl').value),target:$('#target').value};return msg.target==='custom'?A.withDestination(msg,$('#destinationUrl').value):msg}
-function preview(){const custom=$('#target').value==='custom';$('#customLinkFields').hidden=!custom;$('#destinationUrl').required=custom;let msg;try{msg=message()}catch{msg={title:$('#title').value,body:$('#body').value,style:$('#style').value,imageUrl:A.imageUrl($('#imageUrl').value),target:'pagina-web'}}$('#imageStatus').textContent=A.imageUrl($('#imageUrl').value)?'Cargando vista previa…':'Usa un enlace HTTPS directo o un archivo de Google Drive compartido públicamente.';if(!busy)requestId=null;$('#preview').innerHTML=A.card(msg);$('#preview').firstElementChild.classList.add('featured-card');$('#sendButton').disabled=!allowed||busy}
+function message(){const image=$('#contentType').value==='imagen';const msg={title:image?$('#imageCaption').value.trim()||'Publicidad de Grafiplot':$('#title').value.trim(),body:image?'Mira la nueva publicidad de Grafiplot.':$('#body').value.trim(),style:image?'imagen':$('#style').value,imageUrl:A.imageUrl($('#imageUrl').value),target:$('#target').value};return msg.target==='custom'?A.withDestination(msg,$('#destinationUrl').value):msg}
+function preview(){const image=$('#contentType').value==='imagen';$('#textFields').hidden=image;$('#imageCaptionFields').hidden=!image;$('#title').required=$('#body').required=!image;$('#imageUrl').required=image;$('#imageUrlLabel').textContent=image?'Enlace de la imagen (obligatorio)':'Imagen de fondo (opcional)';const custom=$('#target').value==='custom';$('#customLinkFields').hidden=!custom;$('#destinationUrl').required=custom;let msg;try{msg=message()}catch{msg={title:image?$('#imageCaption').value||'Publicidad de Grafiplot':$('#title').value,body:image?'Mira la nueva publicidad de Grafiplot.':$('#body').value,style:image?'imagen':$('#style').value,imageUrl:A.imageUrl($('#imageUrl').value),target:'pagina-web'}}$('#imageStatus').textContent=A.imageUrl($('#imageUrl').value)?'Cargando vista previa…':'Usa un enlace HTTPS directo o un archivo de Google Drive compartido públicamente.';if(!busy)requestId=null;$('#preview').dataset.imageState=A.imageUrl($('#imageUrl').value)?'loading':'empty';$('#preview').innerHTML=A.card(msg);$('#preview').firstElementChild.classList.add('featured-card');$('#sendButton').disabled=!allowed||busy}
 $('#messageForm').oninput=preview;$('#messageForm').onchange=preview;
 async function session(user){
  allowed=advertisingAdmin(user);
@@ -57,6 +57,7 @@ $('#messageForm').onsubmit=async e=>{
  if(!msg.title||!msg.body){$('#sendStatus').textContent='Completa el título y el mensaje.';return;}
  if($('#imageUrl').value.trim()&&!msg.imageUrl){$('#sendStatus').textContent='El enlace de imagen debe usar HTTPS y ser público.';return;}
  if(msg.style==='imagen'&&!/^https:\/\//.test(msg.imageUrl)){$('#sendStatus').textContent='Añade un enlace HTTPS para la imagen.';return;}
+ if(msg.style==='imagen'&&$('#preview').dataset.imageState!=='loaded'){$('#sendStatus').textContent=$('#preview').dataset.imageState==='failed'?'La imagen no carga. Revisa que el enlace sea público y apunte a una imagen.':'Espera a que la imagen aparezca en la vista previa antes de publicar.';return;}
  if(!confirm(notify?'¿Publicar y enviar una notificación a los clientes que la tengan activada?':'¿Publicar solo dentro de la aplicación, sin notificación al teléfono?'))return;
  busy=true;for(const field of $('#messageForm').elements)field.disabled=true;
  $('#sendStatus').textContent='Publicando…';
@@ -82,7 +83,7 @@ $('#messageForm').onsubmit=async e=>{
 };
 (async()=>{preview();try{
  service=await advertisingServices();service.sdk.onAuthStateChanged(service.auth,session);
- $('#configStatus').textContent='Grafiplot Publicidad conectado · versión 1.9. Los anuncios aparecen dentro de la app de clientes.';$('#configStatus').classList.add('good');$('#notify').disabled=!service.config.notificationsEnabled;$('#notify').checked=!!service.config.notificationsEnabled;$('#notifyLabel').textContent=service.config.notificationsEnabled?'Enviar también una notificación al teléfono':'Notificaciones al teléfono pendientes de conexión';
+ $('#configStatus').textContent='Grafiplot Publicidad conectado · versión 1.11. Los anuncios aparecen dentro de la app de clientes.';$('#configStatus').classList.add('good');$('#notify').disabled=!service.config.notificationsEnabled;$('#notify').checked=!!service.config.notificationsEnabled;$('#notifyLabel').textContent=service.config.notificationsEnabled?'Enviar también una notificación al teléfono':'Notificaciones al teléfono pendientes de conexión';
 }catch(e){$('#configStatus').textContent=accessError(e)}})();
 
 let deleting=false,publicationLoad=0;
