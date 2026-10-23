@@ -8,3 +8,11 @@
 .grafiplot-home{display:block;padding:9px 16px;background:#a51b37;color:#fff;font:600 12px/1.4 Arial,sans-serif;text-decoration:none}.grafiplot-home:focus-visible{outline:3px solid #ffce58;outline-offset:-3px}
 
 .grafiplot-home{flex:none}@media print{.grafiplot-home{display:none!important}}
+
+/* Compact document workspace: no branding header, all file actions retained. */
+.document-actions{display:flex;align-items:center;gap:8px;flex:none;min-height:40px;padding:4px 8px;background:#fff;border-bottom:1px solid #dedee2}
+.document-actions input{flex:1;min-width:0;max-width:540px;font-size:13px;padding:7px 9px}
+.document-actions button{font-size:12px;padding:7px 12px;white-space:nowrap}
+.grafiplot-home{position:fixed;right:12px;bottom:36px;z-index:50;width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:50%;font-size:26px;box-shadow:0 2px 8px #0003}
+.android-documents .grafiplot-home{display:none!important}
+@media print{.document-actions,.grafiplot-home{display:none!important}}

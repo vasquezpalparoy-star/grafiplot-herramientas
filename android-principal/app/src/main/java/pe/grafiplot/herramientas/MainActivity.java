@@ -17,6 +17,8 @@ public class MainActivity extends Activity {
  private String currentSiteEntry=SITE;
  private WebView tools,site;
  private FrameLayout content;
+ private LinearLayout navigationBar;
+ private boolean documentFullscreen=false;
  private Button back,openBrowser;
  private ValueCallback<Uri[]> chooser;
  private byte[] pendingBytes;
@@ -24,17 +26,26 @@ public class MainActivity extends Activity {
  private boolean showingSite=false;
  @Override public void onCreate(Bundle saved){super.onCreate(saved);GrafiplotPush.initialize(getApplicationContext());getWindow().setStatusBarColor(Color.rgb(211,14,42));getWindow().setNavigationBarColor(Color.WHITE);
   LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(Color.WHITE);root.setOnApplyWindowInsetsListener((v,insets)->{v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets;});setContentView(root);root.requestApplyInsets();
-  LinearLayout bar=new LinearLayout(this);bar.setPadding(dp(6),0,dp(6),0);bar.setGravity(Gravity.CENTER_VERTICAL);bar.setBackgroundColor(Color.rgb(220,18,44));
+  LinearLayout bar=new LinearLayout(this);navigationBar=bar;bar.setPadding(dp(6),0,dp(6),0);bar.setGravity(Gravity.CENTER_VERTICAL);bar.setBackgroundColor(Color.rgb(220,18,44));
   back=button("‹ Atrás",v->goBack());bar.addView(back);Button home=button(BuildConfig.ADMIN_APP?"Publicidad":"Herramientas",v->goHome());bar.addView(home,new LinearLayout.LayoutParams(0,dp(48),1));Button website=button("Página web ↗",v->showSite());if(!BuildConfig.ADMIN_APP)bar.addView(website);root.addView(bar,new LinearLayout.LayoutParams(-1,dp(48)));
   openBrowser=new Button(this);openBrowser.setText("Abrir la página de Grafiplot en el navegador ↗");openBrowser.setTextSize(12);openBrowser.setVisibility(View.GONE);openBrowser.setOnClickListener(v->external(currentSiteEntry));root.addView(openBrowser,new LinearLayout.LayoutParams(-1,dp(42)));
   content=new FrameLayout(this);root.addView(content,new LinearLayout.LayoutParams(-1,0,1));tools=new WebView(this);configure(tools,true);content.addView(tools,new FrameLayout.LayoutParams(-1,-1));tools.addJavascriptInterface(new Downloads(),"AndroidPrint");tools.setWebViewClient(new WebViewClient(){
+   @Override public void onPageStarted(WebView v,String url,android.graphics.Bitmap icon){documentMode(url);}
    @Override public WebResourceResponse shouldInterceptRequest(WebView v,WebResourceRequest request){return localResource(request.getUrl());}
    @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){String u=r.getUrl().toString();if(BuildConfig.ADMIN_APP&&u.startsWith(ORIGIN+"/")&&!adminPage(r.getUrl().getPath())){goHome();return true;}if(u.startsWith(ORIGIN+"/")){if(r.getUrl().getPath().endsWith(".pdf")){saveAsset(r.getUrl().getPath());return true;}return false;}if(isSite(r.getUrl()))showSite(u,true);else external(u);return true;}
-   @Override public void onPageFinished(WebView v,String url){if(url.startsWith(ORIGIN+"/"))v.evaluateJavascript(DOWNLOAD_SCRIPT,null);}
+   @Override public void onPageFinished(WebView v,String url){documentMode(url);if(url.startsWith(ORIGIN+"/"))v.evaluateJavascript(DOWNLOAD_SCRIPT,null);}
   });tools.setDownloadListener((url,userAgent,disposition,mime,length)->{if(url.startsWith(ORIGIN+"/"))saveAsset(Uri.parse(url).getPath());else if(url.startsWith("https://"))external(url);});tools.loadUrl(HOME);handleLaunch(getIntent());
  }
  @Override protected void onResume(){super.onResume();GrafiplotPush.resume(this);}
  void pushChanged(){runOnUiThread(()->{if(tools!=null)tools.evaluateJavascript("window.dispatchEvent(new Event('grafiplot-push-state'))",null);});}
+ @Override public void onWindowFocusChanged(boolean focused){super.onWindowFocusChanged(focused);if(focused&&documentFullscreen)applyDocumentScreen();}
+ private void documentMode(String url){documentFullscreen=!BuildConfig.ADMIN_APP&&!showingSite&&url!=null&&url.startsWith(ORIGIN+"/grafidocumentos/");applyDocumentScreen();}
+ private void applyDocumentScreen(){
+  if(navigationBar!=null)navigationBar.setVisibility(documentFullscreen?View.GONE:View.VISIBLE);
+  if(documentFullscreen){getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+  else{getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);}
+  getWindow().getDecorView().requestApplyInsets();
+ }
  private boolean adminPage(String path){return "/admin-avisos.html".equals(path)||"/administrador.html".equals(path);}
  private int dp(int n){return Math.round(n*getResources().getDisplayMetrics().density);}
  private Button button(String text,View.OnClickListener cb){Button b=new Button(this);b.setText(text);b.setTextSize(12);b.setTextColor(Color.WHITE);b.setBackgroundColor(Color.TRANSPARENT);b.setAllCaps(false);b.setPadding(dp(10),0,dp(10),0);b.setOnClickListener(cb);return b;}
@@ -50,8 +61,8 @@ public class MainActivity extends Activity {
  private WebResourceResponse missing(){return new WebResourceResponse("text/plain","UTF-8",404,"Not Found",new HashMap<>(),new ByteArrayInputStream(new byte[0]));}
  private void showSite(){showSite(SITE,true);}
  private void openDelivery(){if(!BuildConfig.ADMIN_APP)showSite(DELIVERY,true);}
- private void showSite(String entry,boolean navigate){currentSiteEntry=entry;showingSite=true;boolean created=site==null;if(created){site=new WebView(this);configure(site,false);CookieManager.getInstance().setAcceptCookie(true);CookieManager.getInstance().setAcceptThirdPartyCookies(site,false);site.setWebViewClient(new WebViewClient(){@Override public void onPageFinished(WebView v,String url){if(isSite(Uri.parse(url)))CookieManager.getInstance().flush();}@Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){Uri uri=r.getUrl();if(isSite(uri)){if("/delivery.html".equals(uri.getPath())&&!"grafiplot".equals(uri.getQueryParameter("app"))){v.loadUrl(DELIVERY);return true;}return false;}external(uri.toString());return true;}@Override public void onReceivedError(WebView v,WebResourceRequest r,WebResourceError e){if(r.isForMainFrame())toast("Revisa tu conexión o abre la página en el navegador");}});content.addView(site,new FrameLayout.LayoutParams(-1,-1));site.loadUrl(entry);}else if(navigate&&!entry.equals(site.getUrl()))site.loadUrl(entry);tools.setVisibility(View.GONE);site.setVisibility(View.VISIBLE);openBrowser.setVisibility(View.VISIBLE);}
- private void goTools(){showingSite=false;if(site!=null)site.setVisibility(View.GONE);tools.setVisibility(View.VISIBLE);openBrowser.setVisibility(View.GONE);}
+ private void showSite(String entry,boolean navigate){currentSiteEntry=entry;showingSite=true;documentMode(null);boolean created=site==null;if(created){site=new WebView(this);configure(site,false);CookieManager.getInstance().setAcceptCookie(true);CookieManager.getInstance().setAcceptThirdPartyCookies(site,false);site.setWebViewClient(new WebViewClient(){@Override public void onPageFinished(WebView v,String url){if(isSite(Uri.parse(url)))CookieManager.getInstance().flush();}@Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){Uri uri=r.getUrl();if(isSite(uri)){if("/delivery.html".equals(uri.getPath())&&!"grafiplot".equals(uri.getQueryParameter("app"))){v.loadUrl(DELIVERY);return true;}return false;}external(uri.toString());return true;}@Override public void onReceivedError(WebView v,WebResourceRequest r,WebResourceError e){if(r.isForMainFrame())toast("Revisa tu conexión o abre la página en el navegador");}});content.addView(site,new FrameLayout.LayoutParams(-1,-1));site.loadUrl(entry);}else if(navigate&&!entry.equals(site.getUrl()))site.loadUrl(entry);tools.setVisibility(View.GONE);site.setVisibility(View.VISIBLE);openBrowser.setVisibility(View.VISIBLE);}
+ private void goTools(){showingSite=false;documentMode(tools.getUrl());if(site!=null)site.setVisibility(View.GONE);tools.setVisibility(View.VISIBLE);openBrowser.setVisibility(View.GONE);}
  private void goHome(){goTools();tools.loadUrl(HOME);}
  private void goBack(){if(showingSite){if(site.canGoBack())site.goBack();else goTools();}else if(tools.canGoBack())tools.goBack();else if(!HOME.equals(tools.getUrl()))goHome();else new AlertDialog.Builder(this).setMessage("¿Salir de Grafiplot Herramientas?").setPositiveButton("Salir",(d,w)->finish()).setNegativeButton("Continuar",null).show();}
  private void external(String url){try{Uri u=Uri.parse(url);String s=u.getScheme();if("grafiplot".equals(s)&&"print".equals(u.getHost())){openPrinter();return;}if("https".equals(s)||"http".equals(s)||"tel".equals(s)||"mailto".equals(s))startActivity(new Intent(Intent.ACTION_VIEW,u));}catch(Exception e){toast("No hay una aplicación disponible para abrir este enlace");}}
