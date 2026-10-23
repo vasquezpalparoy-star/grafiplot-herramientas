@@ -2,6 +2,7 @@
  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
  <queries><package android:name="com.whatsapp"/><package android:name="com.whatsapp.w4b"/></queries>
  <application>
+  <provider android:name="pe.grafiplot.herramientas.DocumentShareProvider" android:authorities="${applicationId}.documents.share" android:exported="false" android:grantUriPermissions="true"/>
   <activity android:name="com.grifplot.libros.MainActivity" android:exported="false" android:theme="@style/LibrosTheme" android:configChanges="orientation|screenSize|keyboardHidden" android:windowSoftInputMode="adjustResize"/>
   <provider android:name="com.grifplot.libros.ShareProvider" android:authorities="${applicationId}.libros.share" android:exported="false" android:grantUriPermissions="true"/>
  </application>

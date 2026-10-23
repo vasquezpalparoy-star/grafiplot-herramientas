@@ -1,0 +1,5 @@
+import {init} from './vendor/pdfium.js';
+import {PdfContentEngine} from './pdf-content-engine.js';
+let enginePromise;
+function engine(){return enginePromise||=(async()=>{const wasm=await fetch(new URL('./vendor/pdfium.wasm',import.meta.url));if(!wasm.ok)throw Error('No se encontró el motor de edición PDF');const module=await init({wasmBinary:await wasm.arrayBuffer()});return new PdfContentEngine(module,async()=>{const r=await fetch(new URL('./vendor/standard_fonts/LiberationSans-Regular.ttf',import.meta.url));if(!r.ok)throw Error('Fuente de edición no disponible');return new Uint8Array(await r.arrayBuffer())})})()}
+let queue=Promise.resolve();self.onmessage=e=>{const {id,type,...data}=e.data;queue=queue.catch(()=>{}).then(async()=>{try{const editor=await engine();if(type==='list'){const result=editor.load(new Uint8Array(data.bytes),data.page);self.postMessage({id,result})}else if(type==='apply'){const bytes=await editor.apply(data);self.postMessage({id,result:bytes},[bytes.buffer])}}catch(err){self.postMessage({id,error:err.message||'No se pudo editar el PDF'})}})};

@@ -1,5 +1,9 @@
 (() => {
   const descriptions = {
+    'grafidocumentos/index.html': {
+      features: ['Crear, abrir y editar documentos Word, hojas de Excel y presentaciones PowerPoint.', 'Leer PDF y editar sus elementos con las herramientas incluidas.', 'Guardar una copia y adjuntar el documento a WhatsApp para enviarlo a imprimir.'],
+      note: 'Tus archivos se procesan en este dispositivo. Revisa el resultado antes de guardar o imprimir. El envío por WhatsApp requiere la APK actualizada y tu confirmación en WhatsApp.'
+    },
     'delivery.html': {
       features: ['Entrar con el usuario y la contraseña que te entregó Grafiplot.', 'Consultar el avance de tus pedidos y su hora aproximada de entrega.', 'Ver si tu pedido ya salió con el delivery o fue entregado.', 'Mantener tu sesión en la APK para revisar tus próximos pedidos.'],
       note: 'Necesitas Internet. La primera vez debes iniciar sesión; después podrás volver a consultar tus pedidos desde este dispositivo. Puedes usar Cerrar sesión cuando lo necesites.'

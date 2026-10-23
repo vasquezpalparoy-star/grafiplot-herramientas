@@ -5,6 +5,7 @@ def bundleWebAssets = tasks.register('bundleWebAssets', Sync) {
  from([new File(webRoot, 'PDF-LIB-LICENSE.md'), new File(webRoot, 'PDFJS-LICENSE.txt')])
  from(new File(webRoot, 'brand')) { into 'brand' }
  from(new File(webRoot, 'caratulas/web')) { into 'caratulas/web' }
+ from(new File(webRoot, 'grafidocumentos')) { into 'grafidocumentos' }
  into layout.buildDirectory.dir('generated/grafiplotAssets')
 }
 
@@ -20,7 +21,7 @@ android {
  buildToolsVersion '35.0.0'
  signingConfigs { release { if (System.getenv('GRAFIPLOT_KEYSTORE')) { storeFile file(System.getenv('GRAFIPLOT_KEYSTORE')); storePassword System.getenv('GRAFIPLOT_STORE_PASSWORD'); keyAlias 'grafiplot'; keyPassword System.getenv('GRAFIPLOT_KEY_PASSWORD'); enableV1Signing true; enableV2Signing true; enableV3Signing true } } }
  buildTypes { release { if (System.getenv('GRAFIPLOT_KEYSTORE')) signingConfig signingConfigs.release; debuggable false; minifyEnabled false } }
- defaultConfig { applicationId 'pe.grafiplot.herramientas'; minSdk 26; targetSdk 35; versionCode 15; versionName '1.9' }
+ defaultConfig { applicationId 'pe.grafiplot.herramientas'; minSdk 26; targetSdk 35; versionCode 16; versionName '1.10' }
  sourceSets { main { assets.srcDir(layout.buildDirectory.dir('generated/grafiplotAssets')) } }
 }
 
