@@ -15,6 +15,9 @@ dialog.close = () => { dialog.open = false; dialog.dispatchEvent(new window.Even
 vm.runInContext(fs.readFileSync(path.join(root, 'tool-menu.js'), 'utf8'), dom.getInternalVMContext());
 const cards = [...window.document.querySelectorAll('.grid > a.card')];
 assert.equal(cards.length, 10);
+const iconPaths=new Set();
+for(const card of cards){const icon=card.querySelector('img.tool-icon');assert.ok(icon,'each tool needs its own image');assert.equal(icon.getAttribute('alt'),'','the visible name labels the image');const source=icon.getAttribute('src');assert.ok(!iconPaths.has(source),'each tool image must be unique');iconPaths.add(source);const bytes=fs.readFileSync(path.join(root,source));assert.equal(bytes.subarray(8,12).toString(),'WEBP');assert.ok(card.querySelector('h3').textContent.trim(),'every icon keeps its tool name');}
+const official=window.document.querySelector('#officialSite');assert.equal(official.href,'https://www.grafiplotvasquez.com/#hero');assert.ok(official.closest('.prominent-site'));assert.ok(official.closest('section').compareDocumentPosition(window.document.querySelector('#featuredAnnouncements'))&window.Node.DOCUMENT_POSITION_FOLLOWING,'official site is near the start, before advertising');
 for (const card of cards) {
   card.focus();
   const click = new window.MouseEvent('click', { bubbles: true, cancelable: true });
