@@ -14,7 +14,7 @@ dialog.showModal = () => { dialog.open = true; };
 dialog.close = () => { dialog.open = false; dialog.dispatchEvent(new window.Event('close')); };
 vm.runInContext(fs.readFileSync(path.join(root, 'tool-menu.js'), 'utf8'), dom.getInternalVMContext());
 const cards = [...window.document.querySelectorAll('.grid > a.card')];
-assert.equal(cards.length, 9);
+assert.equal(cards.length, 10);
 for (const card of cards) {
   card.focus();
   const click = new window.MouseEvent('click', { bubbles: true, cancelable: true });
@@ -22,13 +22,16 @@ for (const card of cards) {
   assert.equal(dialog.open, true);
   assert.equal(window.document.querySelector('#introTitle').textContent, card.querySelector('h3').textContent);
   assert.equal(window.document.querySelector('#introContinue').href, card.href);
+  const external=new URL(card.href).origin!==window.location.origin;
+  assert.equal(window.document.querySelector('#introContinue').target,external?'_blank':'');
+  if(external)assert.equal(window.document.querySelector('#introContinue').rel,'noopener noreferrer');
   assert.ok(window.document.querySelectorAll('#introFeatures li').length >= 3);
   assert.ok(window.document.body.classList.contains('intro-open'));
   dialog.querySelector('.intro-cancel').click();
   assert.equal(dialog.open, false);
   assert.equal(window.document.activeElement, card, 'focus returns to selected tool');
 }
-console.log('PASS: nine tools explain their functions, preserve destinations and restore focus.');
+console.log('PASS: ten tools explain their functions, preserve destinations and restore focus.');
 const library = new JSDOM(fs.readFileSync(path.join(root, 'libros.html'), 'utf8'), {runScripts:'outside-only'});
 const script = fs.readFileSync(path.join(root, 'libros.js'), 'utf8');
 vm.runInContext(script, library.getInternalVMContext());

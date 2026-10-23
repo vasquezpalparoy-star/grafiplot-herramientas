@@ -1,5 +1,9 @@
 (() => {
   const descriptions = {
+    'https://vasquezpalparoy-star.github.io/sesiones-pabalo/': {
+      features: ['Acceder directamente a la aplicación de Sesiones.', 'Utilizar las funciones disponibles en esa página.', 'Regresar a Grafiplot para continuar con tus otras herramientas.'],
+      note: 'Necesitas Internet. La página de Sesiones se abrirá en el navegador.'
+    },
     'grafidocumentos/index.html': {
       features: ['Crear, abrir y editar documentos Word, hojas de Excel y presentaciones PowerPoint.', 'Leer PDF y editar sus elementos con las herramientas incluidas.', 'Guardar una copia y adjuntar el documento a WhatsApp para enviarlo a imprimir.'],
       note: 'Tus archivos se procesan en este dispositivo. Revisa el resultado antes de guardar o imprimir. El envío por WhatsApp requiere la APK actualizada y tu confirmación en WhatsApp.'
@@ -38,6 +42,7 @@
   const close = () => dialog.close();
   dialog.querySelector('.intro-close').addEventListener('click', close);
   dialog.querySelector('.intro-cancel').addEventListener('click', close);
+  dialog.querySelector('#introContinue').addEventListener('click', close);
   dialog.addEventListener('click', event => { if (event.target === dialog) {
     const rect = dialog.getBoundingClientRect();
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) close();
@@ -58,7 +63,11 @@
       const note = document.querySelector('#introNote');
       note.hidden = !detail.note;
       note.textContent = detail.note || '';
-      document.querySelector('#introContinue').href = card.href;
+      const continuation=document.querySelector('#introContinue');
+      continuation.href=card.href;
+      const external=new URL(card.href).origin!==location.origin;
+      continuation.target=external?'_blank':'';
+      continuation.rel=external?'noopener noreferrer':'';
       document.body.classList.add('intro-open');
       dialog.showModal();
     });
